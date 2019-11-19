@@ -5,4 +5,6 @@ lib
 reports
 coverage
 
+*.tgz
+
 yarn-error.log
