@@ -1,0 +1,62 @@
+{
+  "name": "ra-data-postgraphile",
+  "version": "0.1.0",
+  "description": "Postgraphile data provider for react-admin",
+  "main": "esm/index.js",
+  "module": "esm/index.js",
+  "types": "esm/index.d.js",
+  "scripts": {
+    "build": "yarn run build-cjs && yarn run build-esm",
+    "build-cjs": "rimraf ./lib && tsc",
+    "build-esm": "rimraf ./esm && tsc --outDir esm",
+    "watch": "rimraf ./lib && tsc --watch",
+    "test": "jest"
+  },
+  "sideEffects": false,
+  "author": "Jürgen Kartnaller",
+  "license": "Apache-2.0",
+  "files": [
+    "LICENSE",
+    "*.md",
+    "lib/",
+    "esm/",
+    "src"
+  ],
+  "keywords": [
+    "react-admin",
+    "postgraphile",
+    "graphql"
+  ],
+  "dependencies": {
+    "apollo-boost": "0.4.4",
+    "apollo-cache-inmemory": "1.6.3",
+    "graphql": "^14.5.8",
+    "graphql-tag": "^2.10.1",
+    "lodash": "4.17.15",
+    "ra-data-graphql": "^3.0.0-beta.6"
+  },
+  "peerDependencies": {
+    "ra-core": "^3.0.0-beta.6"
+  },
+  "devDependencies": {
+    "@types/jest": "24.0.19",
+    "connected-react-router": "^6.5.2",
+    "cross-env": "^6.0.0",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
+    "final-form": "^4.18.5",
+    "history": "^4.7.2",
+    "jest": "24.9.0",
+    "ra-core": "^3.0.0-beta.6",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-final-form": "^6.3.0",
+    "react-redux": "^7.1.0",
+    "react-router": "^5.1.0",
+    "react-router-dom": "^5.1.0",
+    "redux": "^3.7.2 || ^4.0.3",
+    "redux-saga": "1.1.1",
+    "ts-jest": "24.1.0",
+    "typescript": "3.6.3"
+  }
+}
