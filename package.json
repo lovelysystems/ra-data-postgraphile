@@ -1,8 +1,8 @@
 {
   "name": "ra-data-postgraphile",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Postgraphile data provider for react-admin",
-  "main": "esm/index.js",
+  "main": "lib/index.js",
   "module": "esm/index.js",
   "types": "esm/index.d.js",
   "scripts": {
@@ -10,6 +10,7 @@
     "build-cjs": "rimraf ./lib && tsc",
     "build-esm": "rimraf ./esm && tsc --outDir esm",
     "watch": "rimraf ./lib && tsc --watch",
+    "prepublishOnly": "yarn build",
     "test": "jest"
   },
   "sideEffects": false,
@@ -25,14 +26,15 @@
   "keywords": [
     "react-admin",
     "postgraphile",
-    "graphql"
+    "graphql",
+    "lovelysystems"
   ],
   "dependencies": {
-    "apollo-boost": "0.4.4",
-    "apollo-cache-inmemory": "1.6.3",
+    "apollo-boost": "^0.4.4",
+    "apollo-cache-inmemory": "^1.6.3",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
-    "lodash": "4.17.15",
+    "lodash": "^4.17.15",
     "ra-data-graphql": "^3.0.0-beta.6"
   },
   "peerDependencies": {

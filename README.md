@@ -138,4 +138,4 @@ form it is necessary to manually provide the correct pluralized form.
 
 ## License
 
-ra-data-postgraphile is licensed under the [Apache 2.0](https://github.com/lovelysystems/ra-data-postgraphile/blob/master/LICENSE.md), sponsored and supported by [Lovely Systems](https://www.lovelysystems.com).
+ra-data-postgraphile is licensed under the [Apache 2.0](https://github.com/lovelysystems/ra-data-postgraphile/blob/master/LICENSE), sponsored and supported by [Lovely Systems](https://www.lovelysystems.com).
