@@ -59,12 +59,14 @@ describe('resource', () => {
       const provider = resourceFactory(introspectionResult, { options: {} })
       const result = provider(GET_MANY, 'Test', { ids: [1, 2] })
       expect(result.variables).toStrictEqual({ ids: [1, 2] })
-      expect(print(result.query)).toStrictEqual(`query tests($ids: Int!) {
+      expect(print(result.query)).toStrictEqual(`query tests($ids: [Int!]) {
   tests(filter: {id: {in: $ids}}) {
-    nodeId
-    name
-    id
-    ts
+    nodes {
+      nodeId
+      name
+      id
+      ts
+    }
   }
 }
 `)
@@ -440,12 +442,14 @@ describe('resource', () => {
         const provider = resourceFactory(introspectionResult, { options: {} })
         const result = provider(GET_MANY, 'Compound', { ids: [1, 2] })
         expect(result.variables).toStrictEqual({ ids: [1, 2] })
-        expect(print(result.query)).toStrictEqual(`query compounds($ids: ID!) {
+        expect(print(result.query)).toStrictEqual(`query compounds($ids: [ID!]) {
   compounds(filter: {nodeId: {in: $ids}}) {
-    nodeId
-    name
-    id
-    ts
+    nodes {
+      nodeId
+      name
+      id
+      ts
+    }
   }
 }
 `)

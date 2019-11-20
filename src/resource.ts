@@ -175,7 +175,7 @@ function resourceQueryBuilder(
     }
   }
 
-  const getManyArgs = `$ids: ${getOneIdType}!`
+  const getManyArgs = `$ids: [${getOneIdType}!]`
   const getManyFilter = hasCompoundKey
     ? '{ nodeId: { in: $ids }}'
     : `{ ${primaryKeys[0].name}: { in: $ids }}`
@@ -184,11 +184,13 @@ function resourceQueryBuilder(
     return {
       query: gql`query ${pluralizedQueryTypeName}(${getManyArgs}) {
         ${pluralizedQueryTypeName}(filter: ${getManyFilter}) {
-        ${createQueryFromType(
-          typeName,
-          mappedIntrospection.types,
-          allowedComplexTypes,
-        )}
+          nodes {
+            ${createQueryFromType(
+              typeName,
+              mappedIntrospection.types,
+              allowedComplexTypes,
+            )}
+          }
       }}`,
       variables: {
         ids: params.ids.filter(v => Boolean(v)).map(convertType),
