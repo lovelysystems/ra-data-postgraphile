@@ -5,6 +5,13 @@
   "main": "lib/index.js",
   "module": "esm/index.js",
   "types": "esm/index.d.js",
+  "repository": "lovelysystems/ra-data-postgraphile",
+  "homepage": "https://github.com/lovelysystems/ra-data-postgraphile#readme",
+  "bugs": "https://github.com/lovelysystems/ra-data-postgraphile/issues",
+  "authors": [
+    "Jürgen Kartnaller"
+  ],
+  "license": "Apache-2.0",
   "scripts": {
     "build": "yarn run build-cjs && yarn run build-esm",
     "build-cjs": "rimraf ./lib && tsc",
@@ -14,8 +21,6 @@
     "test": "jest"
   },
   "sideEffects": false,
-  "author": "Jürgen Kartnaller",
-  "license": "Apache-2.0",
   "files": [
     "LICENSE",
     "*.md",
@@ -36,10 +41,10 @@
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.15",
-    "ra-data-graphql": "^3.0.0-beta.6"
+    "ra-data-graphql": "^3.0.0"
   },
   "peerDependencies": {
-    "ra-core": "^3.0.0-beta.6"
+    "ra-core": "^3.0.0"
   },
   "devDependencies": {
     "@types/jest": "24.0.19",
@@ -50,10 +55,10 @@
     "final-form": "^4.18.5",
     "history": "^4.7.2",
     "jest": "24.9.0",
-    "ra-core": "^3.0.0-beta.6",
+    "ra-core": "^3.0.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
-    "react-final-form": "^6.3.0",
+    "react-final-form": "^6.3.3",
     "react-redux": "^7.1.0",
     "react-router": "^5.1.0",
     "react-router-dom": "^5.1.0",

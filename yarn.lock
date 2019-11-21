@@ -3514,10 +3514,10 @@ query-string@~5.1.1:
     object-assign "^4.1.0"
     strict-uri-encode "^1.0.0"
 
-ra-core@^3.0.0-beta.6:
-  version "3.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.0.0-beta.6.tgz#ac6bb95968de17643a43e961a3f2ead480c2ee67"
-  integrity sha512-I05Y7id4DBcWckBVf6+FO2RzVb/x7gM4uDZmRUYBXyYjvHBuqDdAyjPJEXhHiJ18VLKv8KBkW9Xcnj24FIhYQA==
+ra-core@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.0.0.tgz#2ed432f33c4814d09279e23c9ede1946bd175aa8"
+  integrity sha512-C2KiXkEZz9NCSkkwlMn9PTnDKwBCboIKh8KZn1cbRkyBud+Li6TSqqCKT1ZaKHK254Dn69qObhj50O07SSlsQQ==
   dependencies:
     "@testing-library/react" "^8.0.7"
     classnames "~2.2.5"
@@ -3530,10 +3530,10 @@ ra-core@^3.0.0-beta.6:
     recompose "~0.26.0"
     reselect "~3.0.0"
 
-ra-data-graphql@^3.0.0-beta.6:
-  version "3.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/ra-data-graphql/-/ra-data-graphql-3.0.0-beta.6.tgz#90c42f386706fc7c4b387a609f679cbf087d7cf5"
-  integrity sha512-ML0SYe9jOITRIyj15iylqWz3TKzxV7KY5dKkBPZ/jAmRUDQkbuc4XTc+2fzPkzhLRKGigI97Tij2DYPZlIO++A==
+ra-data-graphql@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/ra-data-graphql/-/ra-data-graphql-3.0.0.tgz#c9381dc61711da2f5543fa2b38676c909a3930a1"
+  integrity sha512-ZlexEU1Mm0sTgzY4HzNttfMzvOTfz3qc5AtDlCji8Ma6G89mahVpyGncEhe3RKgMe8Sj+MR/RZmSCLCnRQc9Ug==
   dependencies:
     apollo-client "^2.6.3"
     apollo-client-preset "^1.0.8"
@@ -3581,10 +3581,10 @@ react-dom@^16.9.0:
     prop-types "^15.6.2"
     scheduler "^0.18.0"
 
-react-final-form@^6.3.0:
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/react-final-form/-/react-final-form-6.3.1.tgz#d4b72a81892b2ebc46ea053d6b11b361d063ddf8"
-  integrity sha512-UzpAVBLnXRr2GnTP/Z3wjxlFZnfiOnWKNYW2ViK5+6Res0Ehp6vMkBLfaWaoHxSXNCUJtnItM23okAzBINSelg==
+react-final-form@^6.3.3:
+  version "6.3.3"
+  resolved "https://registry.yarnpkg.com/react-final-form/-/react-final-form-6.3.3.tgz#8856a92278de2733f83e88c75d9ef347294a66a0"
+  integrity sha512-hFLwLpLasywky46SovNEGlym7+N+3RKge1/cg+/fVec/YY0l4g0ihgjRof6PbkiYe4qGjKbwbrvlgfZ9/Uf8vw==
   dependencies:
     "@babel/runtime" "^7.4.5"
     ts-essentials "^3.0.2"
