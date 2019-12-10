@@ -133,7 +133,6 @@ form it is necessary to manually provide the correct pluralized form.
 
 ## TODO
 
- - implement DELETE
  - implement DELETE_MANY
 
 ## License

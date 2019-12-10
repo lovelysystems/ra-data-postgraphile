@@ -35,7 +35,6 @@
     "lovelysystems"
   ],
   "dependencies": {
-    "@types/lodash": "4.14.149",
     "apollo-boost": "^0.4.4",
     "apollo-cache-inmemory": "^1.6.3",
     "graphql": "^14.5.8",
@@ -47,7 +46,8 @@
     "ra-core": "^3.0.0"
   },
   "devDependencies": {
-    "@types/jest": "24.0.19",
+    "@types/jest": "24.0.23",
+    "@types/lodash": "4.14.149",
     "connected-react-router": "^6.5.2",
     "cross-env": "^6.0.0",
     "enzyme": "^3.10.0",

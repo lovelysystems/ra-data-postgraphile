@@ -6,12 +6,14 @@ import {
   CREATE,
   UPDATE,
   UPDATE_MANY,
+  DELETE,
   GET_MANY_REFERENCE,
   GetOneParams,
   GetManyParams,
   GetManyReferenceParams,
   UpdateParams,
   UpdateManyParams,
+  DeleteParams,
   CreateParams,
   GetListParams,
   LegacyDataProvider,
@@ -35,7 +37,7 @@ import {
 
 type FetchFN = (params: any) => any
 type FetchFNMap = {
-  [key: string]: FetchFN
+  [key: string]: FetchFN | undefined
 }
 
 type Transformations = {
@@ -369,6 +371,34 @@ function resourceQueryBuilder(
     }
   }
 
+  const deleteResourceName = hasCompoundKey
+    ? `delete${typeName}ByNodeId`
+    : `delete${typeName}`
+
+  const deleteResourceInputName = capitalize(`${deleteResourceName}Input`)
+
+  function deleteOne(params: DeleteParams) {
+    return {
+      query: gql`mutation ${deleteResourceName}($input: ${deleteResourceInputName}!) {
+        ${deleteResourceName}(input: $input) {
+        ${queryTypeName} {
+        ${createQueryFromType(
+          typeName,
+          mappedIntrospection.types,
+          allowedComplexTypes,
+        )}
+      }}}`,
+      variables: { id: convertType(params.id) },
+      parseResponse: (response: Response) => {
+        return {
+          data: prepareForReactAdmin(
+            response.data[deleteResourceName][queryTypeName],
+          ),
+        }
+      },
+    }
+  }
+
   function getManyReference(params: GetManyReferenceParams) {
     const { target, id, filter } = params
     return {
@@ -390,13 +420,18 @@ function resourceQueryBuilder(
     }
   }
 
+  function hasQuery(typeName: string) {
+    return !!mappedIntrospection.queries[typeName]
+  }
+
   const fetchTypes: FetchFNMap = {
     [GET_ONE]: getOne,
     [GET_MANY]: getMany,
     [GET_LIST]: getList,
-    [CREATE]: create,
-    [UPDATE]: update,
-    [UPDATE_MANY]: updateMany,
+    [CREATE]: hasQuery(`create${typeName}`) ? create : undefined,
+    [UPDATE]: hasQuery(updateResourceName) ? update : undefined,
+    [UPDATE_MANY]: hasQuery(updateResourceName) ? updateMany : undefined,
+    [DELETE]: hasQuery(`delete${typeName}`) ? deleteOne : undefined,
     [GET_MANY_REFERENCE]: getManyReference,
   }
 

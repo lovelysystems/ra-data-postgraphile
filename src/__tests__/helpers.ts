@@ -859,6 +859,9 @@ export const TestTypes = [
   },
 ]
 
+export const TestMutations = [
+]
+
 export const TestQueries = [
   {
     name: 'test',
@@ -891,6 +894,48 @@ export const TestQueries = [
       },
     ],
     deprecationReason: null,
+  },
+  {
+    name: "createTest",
+    __typename: "__Field",
+    args: [],
+    deprecationReason: null,
+    description: "Creates a single `Test`.",
+    type: {
+      ofType: null,
+      __typename: "__Type",
+      name: "CreateTestPayload",
+      kind: "OBJECT"
+    },
+    isDeprecated: false
+  },
+  {
+    name: "updateTest",
+    __typename: "__Field",
+    args: [],
+    deprecationReason: null,
+    description: "Creates a single `Test`.",
+    type: {
+      ofType: null,
+      __typename: "__Type",
+      name: "UpdateTestPayload",
+      kind: "OBJECT"
+    },
+    isDeprecated: false
+  },
+  {
+    name: "deleteTest",
+    __typename: "__Field",
+    args: [],
+    deprecationReason: null,
+    description: "Creates a single `Test`.",
+    type: {
+      ofType: null,
+      __typename: "__Type",
+      name: "UpdateTestPayload",
+      kind: "OBJECT"
+    },
+    isDeprecated: false
   },
   {
     name: 'compound',
@@ -940,5 +985,33 @@ export const TestQueries = [
       },
     ],
     deprecationReason: null,
+  },
+  {
+    name: "createCompound",
+    __typename: "__Field",
+    args: [],
+    deprecationReason: null,
+    description: "Creates a single `Test`.",
+    type: {
+      ofType: null,
+      __typename: "__Type",
+      name: "CreateTestPayload",
+      kind: "OBJECT"
+    },
+    isDeprecated: false
+  },
+  {
+    name: "updateCompoundByNodeId",
+    __typename: "__Field",
+    args: [],
+    deprecationReason: null,
+    description: "Creates a single `Test`.",
+    type: {
+      ofType: null,
+      __typename: "__Type",
+      name: "UpdateTestPayload",
+      kind: "OBJECT"
+    },
+    isDeprecated: false
   },
 ]

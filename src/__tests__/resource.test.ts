@@ -12,7 +12,7 @@ import {
   DELETE_MANY,
 } from 'ra-core'
 
-import { TestTypes, TestQueries } from './helpers'
+import { TestTypes, TestQueries, TestMutations } from './helpers'
 
 import resourceFactory from '../resource'
 
@@ -20,6 +20,7 @@ describe('resource', () => {
   const introspectionResult = {
     types: TestTypes,
     queries: TestQueries,
+    mutations: TestMutations,
   }
 
   it('provides the query builder', () => {
@@ -389,11 +390,41 @@ describe('resource', () => {
       })
     })
 
-    it('DELETE is not implemented', () => {
+    it('DELETE', () => {
       const provider = resourceFactory(introspectionResult, { options: {} })
-      expect(() => provider(DELETE, 'Test', { id: 1 })).toThrowError(
-        'DELETE is not implemented for type "Test"',
-      )
+      const result = provider(DELETE, 'Test', { id: 1 })
+      expect(result.variables).toStrictEqual({ id: 1 })
+      expect(print(result.query))
+        .toStrictEqual(`mutation deleteTest($input: DeleteTestInput!) {
+  deleteTest(input: $input) {
+    test {
+      nodeId
+      name
+      id
+      ts
+    }
+  }
+}
+`)
+      expect(
+        result.parseResponse({
+          data: {
+            deleteTest: {
+              test: {
+                id: 1,
+                name: 'name 1',
+                nodeId: 'nodeid1',
+              },
+            },
+          },
+        }),
+      ).toStrictEqual({
+        data: {
+          id: 1,
+          name: 'name 1',
+          nodeId: 'nodeid1',
+        },
+      })
     })
 
     it('DELETE_MANY is not implemented', () => {
@@ -405,13 +436,12 @@ describe('resource', () => {
   })
 
   describe('with compound key', () => {
-    describe('GET_ONE', () => {
-      it('provides a nodeId query for compound keys', () => {
-        const provider = resourceFactory(introspectionResult, { options: {} })
-        const result = provider(GET_ONE, 'Compound', { id: 1 })
-        expect(result.variables).toStrictEqual({ id: 1 })
-        expect(print(result.query))
-          .toStrictEqual(`query compoundByNodeId($id: ID!) {
+    it('provides a nodeId query for compound keys', () => {
+      const provider = resourceFactory(introspectionResult, { options: {} })
+      const result = provider(GET_ONE, 'Compound', { id: 1 })
+      expect(result.variables).toStrictEqual({ id: 1 })
+      expect(print(result.query))
+        .toStrictEqual(`query compoundByNodeId($id: ID!) {
   compoundByNodeId(nodeId: $id) {
     nodeId
     name
@@ -420,29 +450,29 @@ describe('resource', () => {
   }
 }
 `)
-        expect(
-          result.parseResponse({
-            data: {
-              compoundByNodeId: {
-                id: 1,
-                nodeId: 'nodeid1',
-              },
-            },
-          }),
-        ).toStrictEqual({
+      expect(
+        result.parseResponse({
           data: {
-            __rawId: 1,
-            id: 'nodeid1',
-            nodeId: 'nodeid1',
+            compoundByNodeId: {
+              id: 1,
+              nodeId: 'nodeid1',
+            },
           },
-        })
+        }),
+      ).toStrictEqual({
+        data: {
+          __rawId: 1,
+          id: 'nodeid1',
+          nodeId: 'nodeid1',
+        },
       })
+    })
 
-      it('GET_MANY provides a query', () => {
-        const provider = resourceFactory(introspectionResult, { options: {} })
-        const result = provider(GET_MANY, 'Compound', { ids: [1, 2] })
-        expect(result.variables).toStrictEqual({ ids: [1, 2] })
-        expect(print(result.query)).toStrictEqual(`query compounds($ids: [ID!]) {
+    it('GET_MANY provides a query', () => {
+      const provider = resourceFactory(introspectionResult, { options: {} })
+      const result = provider(GET_MANY, 'Compound', { ids: [1, 2] })
+      expect(result.variables).toStrictEqual({ ids: [1, 2] })
+      expect(print(result.query)).toStrictEqual(`query compounds($ids: [ID!]) {
   compounds(filter: {nodeId: {in: $ids}}) {
     nodes {
       nodeId
@@ -453,57 +483,57 @@ describe('resource', () => {
   }
 }
 `)
-        expect(
-          result.parseResponse({
-            data: {
-              compounds: {
-                nodes: [
-                  {
-                    id: 1,
-                    name: 'name 1',
-                    nodeId: 'nodeid1',
-                  },
-                  {
-                    id: 2,
-                    name: 'name 2',
-                    nodeId: 'nodeid2',
-                  },
-                ],
-              },
-            },
-          }),
-        ).toStrictEqual({
-          data: [
-            {
-              __rawId: 1,
-              id: 'nodeid1',
-              name: 'name 1',
-              nodeId: 'nodeid1',
-            },
-            {
-              __rawId: 2,
-              id: 'nodeid2',
-              name: 'name 2',
-              nodeId: 'nodeid2',
-            },
-          ],
-        })
-      })
-
-      it('CREATE provides a mutation', () => {
-        const provider = resourceFactory(introspectionResult, { options: {} })
-        const result = provider(CREATE, 'Compound', {
-          data: { name: 'the name' },
-        })
-        expect(result.variables).toStrictEqual({
-          input: {
-            compound: {
-              name: 'the name',
+      expect(
+        result.parseResponse({
+          data: {
+            compounds: {
+              nodes: [
+                {
+                  id: 1,
+                  name: 'name 1',
+                  nodeId: 'nodeid1',
+                },
+                {
+                  id: 2,
+                  name: 'name 2',
+                  nodeId: 'nodeid2',
+                },
+              ],
             },
           },
-        })
-        expect(print(result.query))
-          .toStrictEqual(`mutation createCompound($input: CreateCompoundInput!) {
+        }),
+      ).toStrictEqual({
+        data: [
+          {
+            __rawId: 1,
+            id: 'nodeid1',
+            name: 'name 1',
+            nodeId: 'nodeid1',
+          },
+          {
+            __rawId: 2,
+            id: 'nodeid2',
+            name: 'name 2',
+            nodeId: 'nodeid2',
+          },
+        ],
+      })
+    })
+
+    it('CREATE provides a mutation', () => {
+      const provider = resourceFactory(introspectionResult, { options: {} })
+      const result = provider(CREATE, 'Compound', {
+        data: { name: 'the name' },
+      })
+      expect(result.variables).toStrictEqual({
+        input: {
+          compound: {
+            name: 'the name',
+          },
+        },
+      })
+      expect(print(result.query))
+        .toStrictEqual(`mutation createCompound($input: CreateCompoundInput!) {
   createCompound(input: $input) {
     compound {
       nodeId
@@ -514,49 +544,49 @@ describe('resource', () => {
   }
 }
 `)
-        expect(
-          result.parseResponse({
-            data: {
-              createCompound: {
-                compound: {
-                  id: 1,
-                  name: 'name 1',
-                  nodeId: 'nodeid1',
-                },
+      expect(
+        result.parseResponse({
+          data: {
+            createCompound: {
+              compound: {
+                id: 1,
+                name: 'name 1',
+                nodeId: 'nodeid1',
               },
             },
-          }),
-        ).toStrictEqual({
-          data: {
-            __rawId: 1,
-            id: 'nodeid1',
-            name: 'name 1',
-            nodeId: 'nodeid1',
           },
-        })
+        }),
+      ).toStrictEqual({
+        data: {
+          __rawId: 1,
+          id: 'nodeid1',
+          name: 'name 1',
+          nodeId: 'nodeid1',
+        },
       })
+    })
 
-      it('UPDATE provides a mutation', () => {
-        const provider = resourceFactory(introspectionResult, { options: {} })
-        const result = provider(UPDATE, 'Compound', {
+    it('UPDATE provides a mutation', () => {
+      const provider = resourceFactory(introspectionResult, { options: {} })
+      const result = provider(UPDATE, 'Compound', {
+        id: 'nodeId:1',
+        data: {
           id: 'nodeId:1',
-          data: {
-            id: 'nodeId:1',
+          name: 'the name',
+          __rawId: 1,
+        },
+      })
+      expect(result.variables).toStrictEqual({
+        input: {
+          id: 'nodeId:1',
+          patch: {
+            id: 1,
             name: 'the name',
-            __rawId: 1,
           },
-        })
-        expect(result.variables).toStrictEqual({
-          input: {
-            id: 'nodeId:1',
-            patch: {
-              id: 1,
-              name: 'the name',
-            },
-          },
-        })
-        expect(print(result.query))
-          .toStrictEqual(`mutation updateCompoundByNodeId($input: UpdateCompoundByNodeIdInput!) {
+        },
+      })
+      expect(print(result.query))
+        .toStrictEqual(`mutation updateCompoundByNodeId($input: UpdateCompoundByNodeIdInput!) {
   updateCompoundByNodeId(input: $input) {
     compound {
       nodeId
@@ -567,54 +597,54 @@ describe('resource', () => {
   }
 }
 `)
-        expect(
-          result.parseResponse({
-            data: {
-              updateCompoundByNodeId: {
-                compound: {
-                  id: 1,
-                  name: 'name 1',
-                  nodeId: 'nodeid1',
-                },
+      expect(
+        result.parseResponse({
+          data: {
+            updateCompoundByNodeId: {
+              compound: {
+                id: 1,
+                name: 'name 1',
+                nodeId: 'nodeid1',
               },
             },
-          }),
-        ).toStrictEqual({
-          data: {
-            __rawId: 1,
-            id: 'nodeid1',
-            name: 'name 1',
-            nodeId: 'nodeid1',
           },
-        })
+        }),
+      ).toStrictEqual({
+        data: {
+          __rawId: 1,
+          id: 'nodeid1',
+          name: 'name 1',
+          nodeId: 'nodeid1',
+        },
       })
+    })
 
-      it('UPDATE_MANY provides a mutation', () => {
-        const provider = resourceFactory(introspectionResult, { options: {} })
-        const result = provider(UPDATE_MANY, 'Compound', {
-          ids: ['nodeId1', 'nodeId2'],
-          data: {
+    it('UPDATE_MANY provides a mutation', () => {
+      const provider = resourceFactory(introspectionResult, { options: {} })
+      const result = provider(UPDATE_MANY, 'Compound', {
+        ids: ['nodeId1', 'nodeId2'],
+        data: {
+          name: 'the name for all',
+        },
+      })
+      expect(result.variables).toStrictEqual({
+        argnodeId1: {
+          clientMutationId: 'nodeId1',
+          id: 'nodeId1',
+          patch: {
             name: 'the name for all',
           },
-        })
-        expect(result.variables).toStrictEqual({
-          argnodeId1: {
-            clientMutationId: 'nodeId1',
-            id: 'nodeId1',
-            patch: {
-              name: 'the name for all',
-            },
+        },
+        argnodeId2: {
+          clientMutationId: 'nodeId2',
+          id: 'nodeId2',
+          patch: {
+            name: 'the name for all',
           },
-          argnodeId2: {
-            clientMutationId: 'nodeId2',
-            id: 'nodeId2',
-            patch: {
-              name: 'the name for all',
-            },
-          },
-        })
-        expect(print(result.query))
-          .toStrictEqual(`mutation updateManyCompound($argnodeId1: UpdateCompoundByNodeIdInput!, $argnodeId2: UpdateCompoundByNodeIdInput!) {
+        },
+      })
+      expect(print(result.query))
+        .toStrictEqual(`mutation updateManyCompound($argnodeId1: UpdateCompoundByNodeIdInput!, $argnodeId2: UpdateCompoundByNodeIdInput!) {
   updatenodeId1: updateCompoundByNodeId(input: $argnodeId1) {
     clientMutationId
   }
@@ -623,35 +653,35 @@ describe('resource', () => {
   }
 }
 `)
-        expect(
-          result.parseResponse({
-            data: {
-              updatenodeId1: {
-                clientMutationId: '1',
-              },
-              updatenodeId2: {
-                clientMutationId: '2',
-              },
+      expect(
+        result.parseResponse({
+          data: {
+            updatenodeId1: {
+              clientMutationId: '1',
             },
-          }),
-        ).toStrictEqual({
-          data: ['1', '2'],
-        })
+            updatenodeId2: {
+              clientMutationId: '2',
+            },
+          },
+        }),
+      ).toStrictEqual({
+        data: ['1', '2'],
       })
+    })
 
-      it('GET_LIST provides a query', () => {
-        const provider = resourceFactory(introspectionResult, { options: {} })
-        const result = provider(GET_LIST, 'Compound', {
-          pagination: { page: 1, perPage: 10 },
-        })
-        expect(result.variables).toStrictEqual({
-          filter: undefined,
-          first: 10,
-          offset: 0,
-          orderBy: ['NATURAL'],
-        })
-        expect(print(result.query))
-          .toStrictEqual(`query compounds($offset: Int!, $first: Int!, $filter: CompoundFilter, $orderBy: [CompoundsOrderBy!]) {
+    it('GET_LIST provides a query', () => {
+      const provider = resourceFactory(introspectionResult, { options: {} })
+      const result = provider(GET_LIST, 'Compound', {
+        pagination: { page: 1, perPage: 10 },
+      })
+      expect(result.variables).toStrictEqual({
+        filter: undefined,
+        first: 10,
+        offset: 0,
+        orderBy: ['NATURAL'],
+      })
+      expect(print(result.query))
+        .toStrictEqual(`query compounds($offset: Int!, $first: Int!, $filter: CompoundFilter, $orderBy: [CompoundsOrderBy!]) {
   compounds(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
     nodes {
       nodeId
@@ -663,43 +693,42 @@ describe('resource', () => {
   }
 }
 `)
-        expect(
-          result.parseResponse({
-            data: {
-              compounds: {
-                nodes: [
-                  {
-                    id: 1,
-                    nodeId: 'nodeid1',
-                    name: 'name 1',
-                  },
-                  {
-                    id: 2,
-                    nodeId: 'nodeid2',
-                    name: 'name 2',
-                  },
-                ],
-                totalCount: 42,
-              },
+      expect(
+        result.parseResponse({
+          data: {
+            compounds: {
+              nodes: [
+                {
+                  id: 1,
+                  nodeId: 'nodeid1',
+                  name: 'name 1',
+                },
+                {
+                  id: 2,
+                  nodeId: 'nodeid2',
+                  name: 'name 2',
+                },
+              ],
+              totalCount: 42,
             },
-          }),
-        ).toStrictEqual({
-          data: [
-            {
-              __rawId: 1,
-              id: 'nodeid1',
-              name: 'name 1',
-              nodeId: 'nodeid1',
-            },
-            {
-              __rawId: 2,
-              id: 'nodeid2',
-              name: 'name 2',
-              nodeId: 'nodeid2',
-            },
-          ],
-          total: 42,
-        })
+          },
+        }),
+      ).toStrictEqual({
+        data: [
+          {
+            __rawId: 1,
+            id: 'nodeid1',
+            name: 'name 1',
+            nodeId: 'nodeid1',
+          },
+          {
+            __rawId: 2,
+            id: 'nodeid2',
+            name: 'name 2',
+            nodeId: 'nodeid2',
+          },
+        ],
+        total: 42,
       })
     })
   })

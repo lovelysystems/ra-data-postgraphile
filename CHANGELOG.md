@@ -1,5 +1,9 @@
 # Changelog
 
+- added DELETE
+- Only provide methods if the backend provides them for:
+   create, update, updateMany, delete
+
 ## v0.1.2
 
 - updated to react-admin 3.0.0
