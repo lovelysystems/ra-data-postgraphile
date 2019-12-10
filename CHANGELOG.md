@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.2.0
+
 - added DELETE
 - Only provide methods if the backend provides them for:
    create, update, updateMany, delete
