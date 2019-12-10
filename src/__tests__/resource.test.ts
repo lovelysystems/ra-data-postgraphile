@@ -393,7 +393,7 @@ describe('resource', () => {
     it('DELETE', () => {
       const provider = resourceFactory(introspectionResult, { options: {} })
       const result = provider(DELETE, 'Test', { id: 1 })
-      expect(result.variables).toStrictEqual({ id: 1 })
+      expect(result.variables).toStrictEqual({input: { id: 1 }})
       expect(print(result.query))
         .toStrictEqual(`mutation deleteTest($input: DeleteTestInput!) {
   deleteTest(input: $input) {

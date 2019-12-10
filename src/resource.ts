@@ -388,7 +388,9 @@ function resourceQueryBuilder(
           allowedComplexTypes,
         )}
       }}}`,
-      variables: { id: convertType(params.id) },
+      variables: {input: {
+        id: convertType(params.id),
+      }},
       parseResponse: (response: Response) => {
         return {
           data: prepareForReactAdmin(

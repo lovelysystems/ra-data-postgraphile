@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.1
+
+- fix delete parameter
+
 ## v0.2.0
 
 - added DELETE
