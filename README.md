@@ -66,7 +66,20 @@ export default App
 
 ## Features
 
-Can handle any type for the `id` field.
+### Filter Operations
+
+It is possible to use different filter operations for the list filters.
+The operation can be provided in the filter name:
+
+name = `<propertyName> <operation>`
+
+The possible operations depend on the field type of the propertyName.
+
+Example:
+
+Filter field `refId` is `null`: `refId null`
+
+See [src/filters.ts] for the integrated filters:
 
 ### Compound Primary Keys
 

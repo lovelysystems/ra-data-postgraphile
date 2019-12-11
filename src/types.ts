@@ -3,6 +3,14 @@ export type QueryInputTypeMapper = {
 }
 export type TypePluralizerMap = { [key: string]: string }
 
+export type ValueMapper = (value: any) => any
+export type TypeFilterMapping = {
+  [key: string]: {
+    [operation: string]: [string, ValueMapper?]
+  }
+}
+export type CreateFilterFunction = (fields: FilterFields, type: GQLType) => any
+
 export type ProviderOptions = {
   /**
    * It's possible that a type has a different shape when a Query is used
@@ -10,6 +18,7 @@ export type ProviderOptions = {
    * */
   queryValueToInputValueMap?: QueryInputTypeMapper
   typePluralizer?: TypePluralizerMap
+  typeToFilter?: TypeFilterMapping | null | undefined
 }
 
 export type Factory = {

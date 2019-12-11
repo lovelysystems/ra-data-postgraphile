@@ -1,5 +1,7 @@
 # Changelog
 
+- list filters can now contain operations
+
 ## v0.3.0
 
 - fix delete parameter

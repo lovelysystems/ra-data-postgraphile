@@ -33,6 +33,7 @@ import {
   GQLType,
   ProviderOptions,
   Response,
+  CreateFilterFunction,
 } from './types'
 
 type FetchFN = (params: any) => any
@@ -101,6 +102,7 @@ function resourceQueryBuilder(
   const queryValueToInputValueMap = options.queryValueToInputValueMap || {}
   const allowedComplexTypes = Object.keys(queryValueToInputValueMap)
   const pluralizerMap = options.typePluralizer || {}
+  const typeToFilter = options.typeToFilter
 
   // build the different forms of the type name
   const queryTypeName = lowercase(resourceName)
@@ -232,7 +234,7 @@ function resourceQueryBuilder(
     const orderBy = sort
       ? [createSortingKey(sort.field, sort.order)]
       : [NATURAL_SORTING]
-    const filters = createFilter(filter, type)
+    const filters = createFilter(filter, type, typeToFilter)
     return {
       offset: (pagination.page - 1) * pagination.perPage,
       first: pagination.perPage,
