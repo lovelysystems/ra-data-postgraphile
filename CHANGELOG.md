@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.4.0
+
 - list filters can now contain operations
 
 ## v0.3.0
