@@ -6,8 +6,8 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import resource from './resource'
 
 export type FactorySettings = {
-  client: ApolloClient
-  uri: string
+  client?: any
+  uri?: string
   cache?: any
   options: any
 }
