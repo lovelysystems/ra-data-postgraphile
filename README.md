@@ -18,7 +18,6 @@ The `ra-data-postgraphile` data provider accepts these arguments:
     `return new InMemoryCache({dataIdFromObject: (object: any) => object.nodeId || null})`
 - `config` - _optional_ configuration
 
-
     pgDataProvider({client, [cache], [config]})
 
 The following examples shows the basic usage:
@@ -37,8 +36,10 @@ const App = () => {
       const dataProvider = await pgDataProvider({
         uri: '/graphql',
         options: {
-          typePluralizer: {
-            Company: 'Companies',
+          resources: {
+            Company: {
+              pluralizedName: 'Companies',
+            }
           }
         }
       })
@@ -113,36 +114,6 @@ ra-data-postgraphile expects these plugins to be installed on the postgraphile s
 const PgSimplifyInflectorPlugin = require('@graphile-contrib/pg-simplify-inflector')
 const PgConnectionFilterPlugin = require('postgraphile-plugin-connection-filter')
 ```
-
-## Configuration
-
-You can pass an _optional_ configuration object:
-
-```js
-const pgDataProviderConfig = {
-  queryValueToInputValueMap: {
-    GeographyPoint: value => value.geojson
-  },
-  pluralizerMap: {
-    Company: 'Companies',
-  },
-}
-```
-
-### queryValueToInputValueMap
-
-Allows you to specify a mapping of how a type should map if it's taken as an Input.
-
-The Map is also used to specify what complex types should be completely queried.
-By default only `scalar` and `scalar[]` fields are fetched.
-
-### pluralizerMap
-
-Allows to map resources names to its pluralized form if needed.
-
-By default the pluralized form of the resource is created by simply adding `s`
-to the resource name. Because of the way postgraphile is using the pluralized
-form it is necessary to manually provide the correct pluralized form. 
 
 ## TODO
 

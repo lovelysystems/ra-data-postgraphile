@@ -1,3 +1,4 @@
+import get from 'lodash/get'
 import gql from 'graphql-tag'
 import {
   GET_LIST,
@@ -23,23 +24,28 @@ import {
   lowercase,
   createTypeMap,
   createSortingKey,
-  createQueryFromType,
-  mapInputToVariables,
 } from './utils'
+import {
+  createQueryFromType,
+  SimpleFieldHandlers,
+} from './field'
 import { createFilter } from './filters'
 import {
   NATURAL_SORTING,
-  Factory,
-  GQLType,
-  ProviderOptions,
+  RADataGraphqlFactory,
+  ResourceOptions,
   Response,
-  CreateFilterFunction,
+  MappedIntrospectionResult,
+  IntrospectedTypes,
+  TypeFilterMapping,
+  GQLType,
+  GQLVariables,
+  GQLQuerySettings,
+  FieldHandlers,
+  QueryVariableTypeMappers,
+  QueryVariableTypeMapper,
+  IResource,
 } from './types'
-
-type FetchFN = (params: any) => any
-type FetchFNMap = {
-  [key: string]: FetchFN | undefined
-}
 
 type Transformations = {
   [key: string]: any
@@ -60,21 +66,19 @@ type IntrospectionResult = {
   queries: [any]
 }
 
-type MappedIntrospectionResult = {
-  types: { [key: string]: GQLType }
-  queries: { [key: string]: any }
-}
-
+/**
+ * The resource factory called from ra-data-graphgql
+ */
 export default (
   introspectionResults: IntrospectionResult,
-  factory: Factory,
+  factory: RADataGraphqlFactory,
 ): LegacyDataProvider => {
   const mappedIntrospection: MappedIntrospectionResult = {
     ...introspectionResults,
     types: createTypeMap(introspectionResults.types),
     queries: createTypeMap(introspectionResults.queries),
   }
-  const resources: { [key: string]: any } = {}
+  const resources: { [key: string]: IResource } = {}
   const { options } = factory
   return (
     raFetchType: string,
@@ -83,279 +87,278 @@ export default (
   ): Promise<any> => {
     let resource = resources[resourceName]
     if (!resource) {
-      resource = resourceQueryBuilder(
+      const resourceOptions = get(
+        options,
+        ['resources', resourceName],
+      )
+      const resourceClass = resourceOptions.resourceClass || BaseResource
+      resource = new resourceClass(
         mappedIntrospection,
         resourceName,
-        options,
+        resourceOptions,
       )
       resources[resourceName] = resource
     }
-    return resource(raFetchType, params)
+    return resource.fetch(raFetchType, params)
   }
 }
 
-function resourceQueryBuilder(
-  mappedIntrospection: MappedIntrospectionResult,
-  resourceName: string,
-  options: ProviderOptions,
-): any {
-  const queryValueToInputValueMap = options.queryValueToInputValueMap || {}
-  const allowedComplexTypes = Object.keys(queryValueToInputValueMap)
-  const pluralizerMap = options.typePluralizer || {}
-  const typeToFilter = options.typeToFilter
+/**
+ * The generic resource implementation
+ *
+ * This implementation works based on the introspection results and allows to
+ * use postgraphile types without any additional programming.
+ */
+export class BaseResource implements IResource {
 
-  // build the different forms of the type name
-  const queryTypeName = lowercase(resourceName)
-  const typeName = capitalize(resourceName)
-  const pluralizedQueryTypeName = lowercase(
-    pluralizerMap[resourceName] || `${queryTypeName}s`,
-  )
-  const pluralizedTypeName = capitalize(pluralizedQueryTypeName)
+  public resourceName: string
+  public typeName: string
+  public queryTypeName: string
+  public pluralizedName: string
+  public pluralizedQueryTypeName: string
+  public pluralizedTypeName: string
 
-  const type = mappedIntrospection.types[typeName]
-  if (!type) {
-    throw new Error(`Type "${typeName}" not found in introspection`)
-  }
-  const query = mappedIntrospection.queries[queryTypeName]
-  if (!query) {
-    throw new Error(
-      `Query "${queryTypeName}" for type "${typeName}" not found in introspection`,
-    )
-  }
+  public hasCompoundKey: boolean = false
+  public prepareForReactAdmin: any
 
-  // Getting the primary keys:
-  //   The arguments for the query to get the resource (defined as lowercased
-  //   resource name) are the fields defining the primary key of the resource.
-  const primaryKeys = query.args
-  if (!primaryKeys || primaryKeys.length === 0) {
-    throw new Error(
-      `Query "${queryTypeName}" for type "${typeName}" has no args`,
-    )
-  }
+  public getOneResourceName: string
+  public getOneIdType: string
+  public getOneArgs: string
+  public getOneParams: string
 
-  // If there is more than one argument then this resource has a compound
-  // primary key.
-  const hasCompoundKey = primaryKeys.length > 1
+  public getManyArgs: string
+  public getManyFilter: string
 
-  const prepareForReactAdmin = hasCompoundKey
-    ? (data: any): any => {
-        return {
-          ...data,
-          __rawId: data.id,
-          id: data.nodeId,
+  public updateResourceName: string
+  public updateResourceInputName: string
+  public prepareDataForUpdate: (data: any) => any
+
+  public deleteResourceName: string
+  public deleteResourceInputName: string
+
+  public introspection: IntrospectedTypes & MappedIntrospectionResult
+
+  public raActionMap: any
+
+  public idConverter: (data: any) => any
+
+  public valueToQueryVariablesMap: QueryVariableTypeMappers | null = null
+  public typeToFilterMap: TypeFilterMapping | null = null
+  public queryFieldHandlers?: FieldHandlers = SimpleFieldHandlers
+  public querySettings: GQLQuerySettings = {}
+
+  constructor(
+    mappedIntrospection: MappedIntrospectionResult,
+    resourceName: string,
+    options: ResourceOptions,
+  ) {
+    this.resourceName = resourceName
+    this.typeName = capitalize(resourceName)
+    this.queryTypeName = lowercase(resourceName)
+    this.pluralizedName = options.pluralizedName || `${this.queryTypeName}s`
+    this.pluralizedQueryTypeName = lowercase(this.pluralizedName)
+    this.pluralizedTypeName = capitalize(this.pluralizedQueryTypeName)
+
+    // The GQL Type definition
+    this.introspection = {
+      types: mappedIntrospection.types,
+      queries: mappedIntrospection.queries,
+      type: mappedIntrospection.types[this.typeName],
+      inputType: mappedIntrospection.types[`${this.typeName}Input`],
+      patchType: mappedIntrospection.types[`${this.typeName}Patch`],
+      query: mappedIntrospection.queries[this.queryTypeName],
+    }
+    if (!this.introspection.type) {
+      throw new Error(`Type "${this.typeName}" not found in introspection`)
+    }
+    if (!this.introspection.query) {
+      throw new Error(
+        `Query "${this.queryTypeName}" for type "${this.typeName}" not found in introspection`,
+      )
+    }
+    
+    // Getting the primary keys:
+    //   The arguments for the query to get the resource (defined as lowercased
+    //   resource name) are the fields defining the primary key of the resource.
+    const primaryKeys = this.introspection.query.args
+    if (!primaryKeys || primaryKeys.length === 0) {
+      throw new Error(
+        `Query "${this.queryTypeName}" for type "${this.typeName}" has no args`,
+      )
+    }
+    this.hasCompoundKey = primaryKeys.length > 1
+    
+    this.prepareForReactAdmin = this.hasCompoundKey
+      ? (data: any): any => {
+          return {
+            ...data,
+            __rawId: data.id,
+            id: data.nodeId,
+          }
         }
-      }
-    : (data: any): any => {
-        return data
-      }
+      : (data: any): any => {
+          return data
+        }
 
-  const getOneResourceName = hasCompoundKey
-    ? `${queryTypeName}ByNodeId`
-    : queryTypeName
-  const getOneIdType = hasCompoundKey ? 'ID' : primaryKeys[0].type.ofType.name
-  const getOneArgs = `$id: ${getOneIdType}!`
-  const getOneParams = hasCompoundKey
-    ? 'nodeId: $id'
-    : `${primaryKeys[0].name}: $id`
+    this.getOneResourceName = this.hasCompoundKey
+      ? `${this.queryTypeName}ByNodeId`
+      : this.queryTypeName
+    this.getOneIdType = this.hasCompoundKey ? 'ID' : primaryKeys[0].type.ofType.name
+    this.getOneArgs = `$id: ${this.getOneIdType}!`
+    this.getOneParams = this.hasCompoundKey
+      ? 'nodeId: $id'
+      : `${primaryKeys[0].name}: $id`
 
-  const convertType = gqlTypeConverter(getOneIdType)
+    this.idConverter = gqlTypeConverter(this.getOneIdType)
 
-  function getOne(params: GetOneParams): any {
+    this.getManyArgs = `$ids: [${this.getOneIdType}!]`
+    this.getManyFilter = this.hasCompoundKey
+      ? '{ nodeId: { in: $ids }}'
+      : `{ ${primaryKeys[0].name}: { in: $ids }}`
+
+    this.updateResourceName = this.hasCompoundKey
+      ? `update${this.typeName}ByNodeId`
+      : `update${this.typeName}`
+    this.updateResourceInputName = capitalize(`${this.updateResourceName}Input`)
+    this.prepareDataForUpdate = this.hasCompoundKey
+      ? (data: any) => ({
+          ...data,
+          nodeId: data.id,
+          id: data.__rawId,
+        })
+      : (data: any) => {
+          return data
+        }
+
+    this.deleteResourceName = this.hasCompoundKey
+      ? `delete${this.typeName}ByNodeId`
+      : `delete${this.typeName}`
+    this.deleteResourceInputName = capitalize(`${this.deleteResourceName}Input`)
+
+    this.queryFieldHandlers = get(options, 'queryFieldHandlers', SimpleFieldHandlers)
+    this.querySettings = get(options, 'querySettings', {})
+  }
+
+  getOne = (params: GetOneParams) => {
     return {
-      query: gql`query ${getOneResourceName}(${getOneArgs}) {
-        ${getOneResourceName}(${getOneParams}) {
-        ${createQueryFromType(
-          typeName,
-          mappedIntrospection.types,
-          allowedComplexTypes,
-        )}
+      query: gql`query ${this.getOneResourceName}(${this.getOneArgs}) {
+        ${this.getOneResourceName}(${this.getOneParams}) {
+        ${this.createQueryFromType(GET_ONE)}
       }}`,
-      variables: { id: convertType(params.id) },
+      variables: { id: this.idConverter(params.id) },
       parseResponse: (response: Response) => {
         return {
-          data: prepareForReactAdmin(response.data[getOneResourceName]),
+          data: this.prepareForReactAdmin(
+            response.data[this.getOneResourceName],
+          ),
         }
       },
     }
   }
 
-  const getManyArgs = `$ids: [${getOneIdType}!]`
-  const getManyFilter = hasCompoundKey
-    ? '{ nodeId: { in: $ids }}'
-    : `{ ${primaryKeys[0].name}: { in: $ids }}`
-
-  function getMany(params: GetManyParams) {
+  getMany = (params: GetManyParams) => {
     return {
-      query: gql`query ${pluralizedQueryTypeName}(${getManyArgs}) {
-        ${pluralizedQueryTypeName}(filter: ${getManyFilter}) {
+      query: gql`query ${this.pluralizedQueryTypeName}(${this.getManyArgs}) {
+        ${this.pluralizedQueryTypeName}(filter: ${this.getManyFilter}) {
           nodes {
-            ${createQueryFromType(
-              typeName,
-              mappedIntrospection.types,
-              allowedComplexTypes,
-            )}
+            ${this.createQueryFromType(GET_ONE)}
           }
       }}`,
       variables: {
-        ids: params.ids.filter(v => Boolean(v)).map(convertType),
+        ids: params.ids.filter(v => Boolean(v)).map(this.idConverter),
       },
       parseResponse: (response: Response) => {
-        const { nodes } = response.data[pluralizedQueryTypeName]
+        const { nodes } = response.data[this.pluralizedQueryTypeName]
         return {
-          data: nodes.map(prepareForReactAdmin),
+          data: nodes.map(this.prepareForReactAdmin),
         }
       },
     }
   }
 
-  function createGetListQuery() {
-    return gql`query ${pluralizedQueryTypeName} (
-      $offset: Int!,
-      $first: Int!,
-      $filter: ${typeName}Filter,
-      $orderBy: [${pluralizedTypeName}OrderBy!]
-      ) {
-          ${pluralizedQueryTypeName}(
-            first: $first, offset: $offset, filter: $filter, orderBy: $orderBy
-          ) {
-          nodes {
-              ${createQueryFromType(
-                typeName,
-                mappedIntrospection.types,
-                allowedComplexTypes,
-              )}
-          }
-          totalCount
-    }}`
-  }
-
-  function createGetListVariables(params: GetListParams) {
-    const { filter, sort, pagination } = params
-    const orderBy = sort
-      ? [createSortingKey(sort.field, sort.order)]
-      : [NATURAL_SORTING]
-    const filters = createFilter(filter, type, typeToFilter)
+  getList = (params: GetListParams) => {
     return {
-      offset: (pagination.page - 1) * pagination.perPage,
-      first: pagination.perPage,
-      filter: filters,
-      orderBy,
-    }
-  }
-
-  function getList(params: GetListParams) {
-    return {
-      query: createGetListQuery(),
-      variables: createGetListVariables(params),
+      query: this.createGetListQuery(),
+      variables: this.createGetListVariables(params),
       parseResponse: (response: Response) => {
-        const { nodes, totalCount } = response.data[pluralizedQueryTypeName]
+        const { nodes, totalCount } = response.data[this.pluralizedQueryTypeName]
         return {
-          data: nodes.map(prepareForReactAdmin),
+          data: nodes.map(this.prepareForReactAdmin),
           total: totalCount,
         }
       },
     }
   }
 
-  function create(params: CreateParams) {
+  create = (params: CreateParams) => {
     return {
-      query: gql`mutation create${typeName}($input: Create${typeName}Input!) {
-          create${typeName} (
+      query: gql`mutation create${this.typeName}($input: Create${this.typeName}Input!) {
+          create${this.typeName} (
           input: $input
       ) {
-        ${queryTypeName} {
-        ${createQueryFromType(
-          typeName,
-          mappedIntrospection.types,
-          allowedComplexTypes,
-        )}
+        ${this.queryTypeName} {
+        ${this.createQueryFromType(CREATE)}
       }}}`,
       variables: {
         input: {
-          [queryTypeName]: mapInputToVariables(
+          [this.queryTypeName]: this.recordToVariables(
             params.data,
-            mappedIntrospection.types[`${typeName}Input`],
-            type,
-            queryValueToInputValueMap,
+            this.introspection.inputType,
           ),
         },
       },
       parseResponse: (response: Response) => ({
-        data: prepareForReactAdmin(
-          response.data[`create${typeName}`][queryTypeName],
+        data: this.prepareForReactAdmin(
+          response.data[`create${this.typeName}`][this.queryTypeName],
         ),
       }),
     }
   }
 
-  const updateResourceName = hasCompoundKey
-    ? `update${typeName}ByNodeId`
-    : `update${typeName}`
-
-  const updateResourceInputName = capitalize(`${updateResourceName}Input`)
-
-  const prepareDataForUpdate = hasCompoundKey
-    ? (data: any) => ({
-        ...data,
-        nodeId: data.id,
-        id: data.__rawId,
-      })
-    : (data: any) => {
-        return data
-      }
-
-  function update(params: UpdateParams) {
-    const preparedData = prepareDataForUpdate(params.data)
+  update = (params: UpdateParams) => {
+    const preparedData = this.prepareDataForUpdate(params.data)
     return {
       query: gql`
-        mutation ${updateResourceName}($input: ${updateResourceInputName}!) {
-            ${updateResourceName}(input: $input) {
-            ${queryTypeName} {
-            ${createQueryFromType(
-              typeName,
-              mappedIntrospection.types,
-              allowedComplexTypes,
-            )}
+        mutation ${this.updateResourceName}($input: ${this.updateResourceInputName}!) {
+          ${this.updateResourceName}(input: $input) {
+          ${this.queryTypeName} {
+          ${this.createQueryFromType(UPDATE)}
         }}}`,
       variables: {
         input: {
-          id: convertType(params.id),
-          patch: mapInputToVariables(
+          id: this.idConverter(params.id),
+          patch: this.recordToVariables(
             preparedData,
-            mappedIntrospection.types[`${typeName}Patch`],
-            type,
-            queryValueToInputValueMap,
+            this.introspection.patchType,
           ),
         },
       },
       parseResponse: (response: Response) => ({
-        data: prepareForReactAdmin(
-          response.data[updateResourceName][queryTypeName],
+        data: this.prepareForReactAdmin(
+          response.data[this.updateResourceName][this.queryTypeName],
         ),
       }),
     }
   }
 
-  function updateMany(params: UpdateManyParams) {
+  updateMany = (params: UpdateManyParams) => {
     const { ids, data } = params
     const inputs = ids.map(id => {
       return {
-        id: convertType(id),
+        id: this.idConverter(id),
         clientMutationId: String(id),
-        patch: mapInputToVariables(
+        patch: this.recordToVariables(
           data,
-          mappedIntrospection.types[`${typeName}Patch`],
-          type,
-          queryValueToInputValueMap,
+          this.introspection.patchType,
         ),
       }
     })
     return {
-      query: gql`mutation updateMany${typeName}(
-      ${ids.map(id => `$arg${id}: ${updateResourceInputName}!`).join(',')}) {
+      query: gql`mutation updateMany${this.typeName}(
+      ${ids.map(id => `$arg${id}: ${this.updateResourceInputName}!`).join(',')}) {
           ${inputs.map(input => {
             return `
-           update${input.id}:${updateResourceName}(input: $arg${input.id}) {
+           update${input.id}:${this.updateResourceName}(input: $arg${input.id}) {
              clientMutationId
            }
           `
@@ -367,47 +370,37 @@ function resourceQueryBuilder(
       ),
       parseResponse: (response: Response) => ({
         data: ids.map(id =>
-          convertType(response.data[`update${id}`].clientMutationId),
+          this.idConverter(response.data[`update${id}`].clientMutationId),
         ),
       }),
     }
   }
 
-  const deleteResourceName = hasCompoundKey
-    ? `delete${typeName}ByNodeId`
-    : `delete${typeName}`
-
-  const deleteResourceInputName = capitalize(`${deleteResourceName}Input`)
-
-  function deleteOne(params: DeleteParams) {
+  deleteOne = (params: DeleteParams) => {
     return {
-      query: gql`mutation ${deleteResourceName}($input: ${deleteResourceInputName}!) {
-        ${deleteResourceName}(input: $input) {
-        ${queryTypeName} {
-        ${createQueryFromType(
-          typeName,
-          mappedIntrospection.types,
-          allowedComplexTypes,
-        )}
+      query: gql`mutation ${this.deleteResourceName}($input: ${this.deleteResourceInputName}!) {
+        ${this.deleteResourceName}(input: $input) {
+        ${this.queryTypeName} {
+        ${this.createQueryFromType(DELETE)}
       }}}`,
       variables: {input: {
-        id: convertType(params.id),
+        id: this.idConverter(params.id),
       }},
       parseResponse: (response: Response) => {
         return {
-          data: prepareForReactAdmin(
-            response.data[deleteResourceName][queryTypeName],
+          data: this.prepareForReactAdmin(
+            response.data[this.deleteResourceName][this.queryTypeName],
           ),
         }
       },
     }
   }
 
-  function getManyReference(params: GetManyReferenceParams) {
+  getManyReference = (params: GetManyReferenceParams) => {
     const { target, id, filter } = params
     return {
-      query: createGetListQuery(),
-      variables: createGetListVariables({
+      query: this.createGetListQuery(),
+      variables: this.createGetListVariables({
         ...params,
         filter: {
           ...filter,
@@ -415,36 +408,149 @@ function resourceQueryBuilder(
         },
       }),
       parseResponse: (response: Response) => {
-        const { nodes, totalCount } = response.data[pluralizedQueryTypeName]
+        const { nodes, totalCount } = response.data[this.pluralizedQueryTypeName]
         return {
-          data: nodes.map(prepareForReactAdmin),
+          data: nodes.map(this.prepareForReactAdmin),
           total: totalCount,
         }
       },
     }
   }
 
-  function hasQuery(typeName: string) {
-    return !!mappedIntrospection.queries[typeName]
+  createQueryFromType = (forQuery: string) => {
+    return createQueryFromType({
+      typeName: this.typeName,
+      typeMap: this.introspection.types,
+      handlers: this.queryFieldHandlers,
+      settings: this.querySettings[forQuery],
+    })
+  }
+ 
+  createGetListQuery = () => {
+    return gql`query ${this.pluralizedQueryTypeName} (
+      $offset: Int!,
+      $first: Int!,
+      $filter: ${this.typeName}Filter,
+      $orderBy: [${this.pluralizedTypeName}OrderBy!]
+      ) {
+          ${this.pluralizedQueryTypeName}(
+            first: $first, offset: $offset, filter: $filter, orderBy: $orderBy
+          ) {
+          nodes {
+            ${this.createQueryFromType('GET_LIST')}
+          }
+          totalCount
+    }}`
   }
 
-  const fetchTypes: FetchFNMap = {
-    [GET_ONE]: getOne,
-    [GET_MANY]: getMany,
-    [GET_LIST]: getList,
-    [CREATE]: hasQuery(`create${typeName}`) ? create : undefined,
-    [UPDATE]: hasQuery(updateResourceName) ? update : undefined,
-    [UPDATE_MANY]: hasQuery(updateResourceName) ? updateMany : undefined,
-    [DELETE]: hasQuery(`delete${typeName}`) ? deleteOne : undefined,
-    [GET_MANY_REFERENCE]: getManyReference,
+  createGetListVariables = (params: GetListParams) => {
+    const { filter, sort, pagination } = params
+    const orderBy = sort
+      ? [createSortingKey(sort.field, sort.order)]
+      : [NATURAL_SORTING]
+    const filters = createFilter(
+      filter,
+      this.introspection.type,
+      this.typeToFilterMap,
+    )
+    return {
+      offset: (pagination.page - 1) * pagination.perPage,
+      first: pagination.perPage,
+      filter: filters,
+      orderBy,
+    }
   }
 
-  return (raFetchType: string, params: Record<string, any>) => {
+  hasQuery = (typeName: string): boolean => {
+    return !!this.introspection.queries[typeName]
+  }
+
+  /**
+   * The fetch method called from ra-data-graphql
+   */
+  fetch = (raFetchType: string, params: any) => {
     const throwError = () => {
       throw new Error(
-        `${raFetchType} is not implemented for type "${resourceName}"`,
+        `${raFetchType} is not implemented for type "${this.resourceName}"`,
       )
     }
-    return (fetchTypes[raFetchType] || throwError)(params)
+    switch (raFetchType) {
+      case GET_ONE: return this.getOne(params)
+      case GET_MANY: return this.getMany(params)
+      case GET_MANY_REFERENCE: return this.getManyReference(params)
+      case GET_LIST: return this.getList(params)
+      case CREATE:
+        return this.hasQuery(`create${this.typeName}`)
+          ? this.create(params)
+          : throwError()
+      case UPDATE:
+        return this.hasQuery(this.updateResourceName)
+          ? this.update(params)
+          : throwError()
+      case UPDATE_MANY:
+        return this.hasQuery(this.updateResourceName)
+          ? this.updateMany(params)
+          : throwError()
+      case DELETE:
+        return this.hasQuery(`delete${this.typeName}`)
+          ? this.deleteOne(params)
+          : throwError()
+      default: throwError()
+    }
   }
+
+  /**
+   * Create a variables list based on a GQL input type
+   *
+   * The output can then be used as parameters for graphql.
+   */
+  recordToVariables = (
+    input: any,
+    inputType: GQLType,
+  ): GQLVariables | null => {
+    const { inputFields } = inputType
+    if (!inputFields) {
+      // not an input type
+      return null
+    }
+    const typeMapper: QueryVariableTypeMappers | null = this.valueToQueryVariablesMap
+    const resourceType = this.introspection.type
+
+    return inputFields.reduce((current: any, next: any) => {
+      const inputName = next.name
+      if (input[inputName] === undefined) {
+        // not contained in the input
+        return current
+      }
+      if (typeMapper) {
+        const fieldType = resourceType.fields.find((field: GQLType) => field.name === inputName)
+        if (fieldType) {
+          const fieldTypeName =
+            get(fieldType, 'type.ofType.name') || get(fieldType, 'type.name')
+          if (fieldTypeName) {
+            const valueMapperForType: QueryVariableTypeMapper = typeMapper[fieldTypeName]
+            if (valueMapperForType) {
+              const fieldIsList = fieldType.type.kind === 'LIST'
+              const value = input[inputName]
+              if (fieldIsList) {
+                return {
+                  ...current,
+                  [inputName]: value && value.map(valueMapperForType),
+                }
+              }
+              return {
+                ...current,
+                [inputName]: valueMapperForType(value),
+              }
+            }
+          }
+        }
+      }
+      return {
+        ...current,
+        [inputName]: input[inputName],
+      }
+    }, {})
+  }
+
 }

@@ -211,5 +211,20 @@ describe('filters', () => {
         ],
       })
     })
+
+    it('type map can be provided', () => {
+      const MyTypeToFilterMap = {
+        Int: {
+          'special': ['isTheAnswer', v => 42],
+        }
+      }
+      expect(createFilter({'i special': 1}, FilterType, MyTypeToFilterMap)).toStrictEqual({
+        and: [
+          {
+            i: { isTheAnswer: 42}
+          }
+        ]
+      })
+    })
   })
 })

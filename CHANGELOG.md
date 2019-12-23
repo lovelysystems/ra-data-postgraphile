@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.0
+
+- resources must be configured via the factory options
+- refactoring of the resource implementation to be able to adapt the existing
+  resource handler
+
 ## v0.4.0
 
 - list filters can now contain operations

@@ -5,8 +5,6 @@ import {
   createSortingKey,
   fieldIsObjectOrListOfObject,
   createTypeMap,
-  mapInputToVariables,
-  createQueryFromType,
 } from '../utils'
 import { ContentPatch, ContentType, ContentBlockType } from './helpers'
 
@@ -96,106 +94,4 @@ describe('utils', () => {
     })
   })
 
-  describe('mapInputToVariables', () => {
-    it('maps simple types', () => {
-      expect(
-        mapInputToVariables(
-          {
-            name: 'the name',
-            deleted: false,
-          },
-          ContentPatch,
-          ContentType,
-          {},
-        ),
-      ).toStrictEqual({
-        deleted: false,
-        name: 'the name',
-      })
-    })
-
-    it('maps object types', () => {
-      expect(
-        mapInputToVariables(
-          {
-            name: 'the blocks',
-            blocks: [],
-          },
-          ContentPatch,
-          ContentType,
-          {},
-        ),
-      ).toStrictEqual({
-        blocks: [],
-        name: 'the blocks',
-      })
-      expect(
-        mapInputToVariables(
-          {
-            name: 'the blocks',
-            blocks: [{ type: 'text', value: 'text' }],
-          },
-          ContentPatch,
-          ContentType,
-          {},
-        ),
-      ).toStrictEqual({
-        blocks: [{ type: 'text', value: 'text' }],
-        name: 'the blocks',
-      })
-    })
-
-    it('allows to map properties based on its type', () => {
-      expect(
-        mapInputToVariables(
-          {
-            blocks: [{ type: 'text' }, { type: 'remove' }],
-          },
-          ContentPatch,
-          ContentType,
-          {
-            ContentBlock: value => {
-              return value.type === 'remove' ? null : value
-            },
-          },
-        ),
-      ).toStrictEqual({
-        blocks: [{ type: 'text' }, null],
-      })
-    })
-
-    it('ignores unknown input fields', () => {
-      expect(
-        mapInputToVariables(
-          {
-            unknwon: 'the unknown',
-          },
-          ContentPatch,
-          ContentType,
-          {},
-        ),
-      ).toStrictEqual({})
-    })
-
-    it('can handle empty input', () => {
-      expect(mapInputToVariables({}, ContentPatch, {}, {})).toStrictEqual({})
-    })
-  })
-
-  describe('createQueryFromType', () => {
-    it('provides a property list', () => {
-      expect(
-        createQueryFromType(
-          'Content',
-          {
-            Content: ContentType,
-            ContentBlock: ContentBlockType,
-          },
-          ['ContentBlock'],
-        ),
-      ).toStrictEqual(
-        ' nodeId name blocks block { type } pubTs deleted id ts author',
-      )
-    })
-  })
 })

@@ -1,7 +1,22 @@
-export type QueryInputTypeMapper = {
-  [key: string]: (value: Record<string, any>) => Record<string, any>
+import {
+  GET_LIST,
+  GET_ONE,
+  CREATE,
+  UPDATE,
+  DELETE,
+} from 'ra-core'
+
+export type QueryVariableTypeMapper = (value: Record<string, any>) => Record<string, any>
+
+export type QueryVariableTypeMappers = {
+  [key: string]: QueryVariableTypeMapper
 }
-export type TypePluralizerMap = { [key: string]: string }
+
+export type GQLVariables = {
+  [key: string]: any
+}
+
+// GQL Filter Value Handling
 
 export type ValueMapper = (value: any) => any
 export type TypeFilterMapping = {
@@ -11,50 +26,121 @@ export type TypeFilterMapping = {
 }
 export type CreateFilterFunction = (fields: FilterFields, type: GQLType) => any
 
-export type ProviderOptions = {
-  /**
-   * It's possible that a type has a different shape when a Query is used
-   * then when the Input/Patch is used
-   * */
-  queryValueToInputValueMap?: QueryInputTypeMapper
-  typePluralizer?: TypePluralizerMap
-  typeToFilter?: TypeFilterMapping | null | undefined
-}
-
-export type Factory = {
-  options: ProviderOptions
-}
-
 export type FilterFields = {
   [key: string]: any
 }
 
-export type GQLType = {
+export type GQLTypeMap = {
+  [key: string]: GQLType
+}
+
+export type GQLQueryProperties = {
+  [propertyName: string]: boolean | GQLQueryProperties
+}
+
+export type GQLQuerySettings = {
+  [queryType: string]: GQLQueryProperties
+}
+
+export type MappedIntrospectionResult = {
+  types: GQLTypeMap
+  queries: GQLTypeMap
+}
+
+export type IntrospectedTypes = {
+  type: GQLType
+  query: GQLType
+  inputType: GQLType
+  patchType: GQLType
+}
+
+/**
+ * Resources
+ * 
+ * Resources can be configured via the resource options in the definition of
+ * react admin.
+ */
+export type ResourceFactory = (
+  mappedIntrospection: MappedIntrospectionResult,
+  resourceName: string,
+  options: ProviderOptions,
+) => any
+
+export interface IResource {
+  fetch(raFetchType: string, params: Record<string, any>): any
+}
+
+export interface IResourceConstrutor {
+  new(
+    mappedIntrospection: MappedIntrospectionResult,
+    resourceName: String,
+    options?: ResourceOptions,
+  ): IResource
+}
+
+export type ResourceOptions = {
+
+  // The pluralized name of the resource, this is needed if the pluralized name
+  // of the resource not just ends with 's'.
+  pluralizedName?: string
+
+  // An optional class which implements IResource to be used as the resource
+  // handler.
+  resourceClass?: IResourceConstrutor
+
+  // Optional field handlers to convert fields to queries
+  queryFieldHandlers?: FieldHandlers
+  // The query settings for the GQL results
+  querySettings: GQLQuerySettings
+}
+
+/**
+ * The options which can be provided via react-admin resource options.
+ */
+export type ProviderOptions = {
+  resources: {
+    [name: string]: ResourceOptions,
+  }
+}
+
+export type RADataGraphqlFactory = {
+  // Provided by ra-data-graphql as 'factory' parameter
+  options: ProviderOptions
+}
+
+export type QueryFromTypeParams = {
+  typeName: string
+  typeMap: GQLTypeMap
+  handlers?: FieldHandlers
+  settings?: GQLQueryProperties | boolean
+}
+
+export type FieldHandler = 
+  (field: GQLType, params: QueryFromTypeParams) => string
+
+export interface FieldHandlers {
+  [fieldName: string]: FieldHandler
+}
+
+/**
+ * The GraphQL Introspection Types
+ */
+export interface GQLType {
   name: string
   kind: string
-  fields: any // Map<string, GQLType>,
+  fields: GQLType[],
+  inputFields: GQLType[] | null
+  args: any,
   type: GQLType
   ofType: GQLType
+  defaultValue: any
+  description: string | null
 }
 
 export type Response = {
   data: any
 }
 
-// Constants
-
-export const NODE_INTERFACE = 'Node'
-
 export const CAMEL_REGEX = /(.+?)([A-Z])/gm
 
 export const NATURAL_SORTING = 'NATURAL'
-
-export const VERB_GET_ONE = 'GET_ONE'
-export const VERB_GET_MANY = 'GET_MANY'
-export const VERB_GET_MANY_REFERENCE = 'GET_MANY_REFERENCE'
-export const VERB_GET_LIST = 'GET_LIST'
-export const VERB_CREATE = 'CREATE'
-export const VERB_DELETE = 'DELETE'
-export const VERB_DELETE_MANY = 'DELETE_MANY'
-export const VERB_UPDATE = 'UPDATE'
-export const VERB_UPDATE_MANY = 'UPDATE_MANY'
