@@ -88,6 +88,8 @@ export type ResourceOptions = {
   // handler.
   resourceClass?: IResourceConstrutor
 
+  // Optional field to overwrite the internal type mappings (see filter.ts)
+  typeToFilterMap?: TypeFilterMapping
   // Optional field handlers to convert fields to queries
   queryFieldHandlers?: FieldHandlers
   // The query settings for the GQL results

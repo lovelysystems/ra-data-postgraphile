@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.1
+
+- allow to overwrite typeToFilterMap via options
+- use property with primary key name ad internal id field
+
 ## v0.5.0
 
 - resources must be configured via the factory options

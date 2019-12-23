@@ -119,6 +119,8 @@ export class BaseResource implements IResource {
   public pluralizedTypeName: string
 
   public hasCompoundKey: boolean = false
+  public primaryKeyFieldName: string = 'id'
+  public primaryKeyTypeName: string = ''
   public prepareForReactAdmin: any
 
   public getOneResourceName: string
@@ -187,6 +189,10 @@ export class BaseResource implements IResource {
       )
     }
     this.hasCompoundKey = primaryKeys.length > 1
+    this.primaryKeyFieldName = primaryKeys[0].name
+    this.primaryKeyTypeName = this.hasCompoundKey
+      ? 'ID'
+      : primaryKeys[0].type.name || primaryKeys[0].type.ofType.name
     
     this.prepareForReactAdmin = this.hasCompoundKey
       ? (data: any): any => {
@@ -197,24 +203,27 @@ export class BaseResource implements IResource {
           }
         }
       : (data: any): any => {
+          if (this.primaryKeyFieldName !== 'id') {
+            data.id = data[this.primaryKeyFieldName]
+          }
           return data
         }
 
     this.getOneResourceName = this.hasCompoundKey
       ? `${this.queryTypeName}ByNodeId`
       : this.queryTypeName
-    this.getOneIdType = this.hasCompoundKey ? 'ID' : primaryKeys[0].type.ofType.name
+    this.getOneIdType = this.hasCompoundKey ? 'ID' : this.primaryKeyTypeName
     this.getOneArgs = `$id: ${this.getOneIdType}!`
     this.getOneParams = this.hasCompoundKey
       ? 'nodeId: $id'
-      : `${primaryKeys[0].name}: $id`
+      : `${this.primaryKeyFieldName}: $id`
 
     this.idConverter = gqlTypeConverter(this.getOneIdType)
 
     this.getManyArgs = `$ids: [${this.getOneIdType}!]`
     this.getManyFilter = this.hasCompoundKey
       ? '{ nodeId: { in: $ids }}'
-      : `{ ${primaryKeys[0].name}: { in: $ids }}`
+      : `{ ${this.primaryKeyFieldName}: { in: $ids }}`
 
     this.updateResourceName = this.hasCompoundKey
       ? `update${this.typeName}ByNodeId`
@@ -235,6 +244,7 @@ export class BaseResource implements IResource {
       : `delete${this.typeName}`
     this.deleteResourceInputName = capitalize(`${this.deleteResourceName}Input`)
 
+    this.typeToFilterMap = get(options, 'typeToFilterMap', null)
     this.queryFieldHandlers = get(options, 'queryFieldHandlers', SimpleFieldHandlers)
     this.querySettings = get(options, 'querySettings', {})
   }
