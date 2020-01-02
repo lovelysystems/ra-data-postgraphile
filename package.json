@@ -31,8 +31,11 @@
     "lovelysystems"
   ],
   "dependencies": {
-    "apollo-boost": "^0.4.4",
     "apollo-cache-inmemory": "^1.6.3",
+    "apollo-client": "^2.6.8",
+    "apollo-link": "^1.2.13",
+    "apollo-link-error": "^1.1.12",
+    "apollo-link-http": "^1.5.16",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.15",

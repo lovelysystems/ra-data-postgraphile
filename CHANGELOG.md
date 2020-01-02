@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.2
+
+- switched from apollo-boost to apollo-client to allow link configuration
+
 ## v0.5.1
 
 - allow to overwrite typeToFilterMap via options
