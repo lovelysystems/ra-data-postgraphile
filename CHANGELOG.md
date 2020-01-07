@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.3
+
+- BaseResource methods as class methods not properties
+
 ## v0.5.2
 
 - switched from apollo-boost to apollo-client to allow link configuration

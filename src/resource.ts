@@ -249,7 +249,7 @@ export class BaseResource implements IResource {
     this.querySettings = get(options, 'querySettings', {})
   }
 
-  getOne = (params: GetOneParams) => {
+  getOne(params: GetOneParams) {
     return {
       query: gql`query ${this.getOneResourceName}(${this.getOneArgs}) {
         ${this.getOneResourceName}(${this.getOneParams}) {
@@ -266,7 +266,7 @@ export class BaseResource implements IResource {
     }
   }
 
-  getMany = (params: GetManyParams) => {
+  getMany(params: GetManyParams) {
     return {
       query: gql`query ${this.pluralizedQueryTypeName}(${this.getManyArgs}) {
         ${this.pluralizedQueryTypeName}(filter: ${this.getManyFilter}) {
@@ -286,7 +286,7 @@ export class BaseResource implements IResource {
     }
   }
 
-  getList = (params: GetListParams) => {
+  getList(params: GetListParams) {
     return {
       query: this.createGetListQuery(),
       variables: this.createGetListVariables(params),
@@ -300,7 +300,7 @@ export class BaseResource implements IResource {
     }
   }
 
-  create = (params: CreateParams) => {
+  create(params: CreateParams) {
     return {
       query: gql`mutation create${this.typeName}($input: Create${this.typeName}Input!) {
           create${this.typeName} (
@@ -325,7 +325,7 @@ export class BaseResource implements IResource {
     }
   }
 
-  update = (params: UpdateParams) => {
+  update(params: UpdateParams) {
     const preparedData = this.prepareDataForUpdate(params.data)
     return {
       query: gql`
@@ -351,7 +351,7 @@ export class BaseResource implements IResource {
     }
   }
 
-  updateMany = (params: UpdateManyParams) => {
+  updateMany(params: UpdateManyParams) {
     const { ids, data } = params
     const inputs = ids.map(id => {
       return {
@@ -386,7 +386,7 @@ export class BaseResource implements IResource {
     }
   }
 
-  deleteOne = (params: DeleteParams) => {
+  deleteOne(params: DeleteParams) {
     return {
       query: gql`mutation ${this.deleteResourceName}($input: ${this.deleteResourceInputName}!) {
         ${this.deleteResourceName}(input: $input) {
@@ -406,7 +406,7 @@ export class BaseResource implements IResource {
     }
   }
 
-  getManyReference = (params: GetManyReferenceParams) => {
+  getManyReference(params: GetManyReferenceParams) {
     const { target, id, filter } = params
     return {
       query: this.createGetListQuery(),
@@ -427,7 +427,7 @@ export class BaseResource implements IResource {
     }
   }
 
-  createQueryFromType = (forQuery: string) => {
+  createQueryFromType(forQuery: string) {
     return createQueryFromType({
       typeName: this.typeName,
       typeMap: this.introspection.types,
@@ -436,7 +436,7 @@ export class BaseResource implements IResource {
     })
   }
  
-  createGetListQuery = () => {
+  createGetListQuery() {
     return gql`query ${this.pluralizedQueryTypeName} (
       $offset: Int!,
       $first: Int!,
@@ -453,7 +453,7 @@ export class BaseResource implements IResource {
     }}`
   }
 
-  createGetListVariables = (params: GetListParams) => {
+  createGetListVariables(params: GetListParams) {
     const { filter, sort, pagination } = params
     const orderBy = sort
       ? [createSortingKey(sort.field, sort.order)]
@@ -471,14 +471,14 @@ export class BaseResource implements IResource {
     }
   }
 
-  hasQuery = (typeName: string): boolean => {
+  hasQuery(typeName: string): boolean {
     return !!this.introspection.queries[typeName]
   }
 
   /**
    * The fetch method called from ra-data-graphql
    */
-  fetch = (raFetchType: string, params: any) => {
+  fetch(raFetchType: string, params: any) {
     const throwError = () => {
       throw new Error(
         `${raFetchType} is not implemented for type "${this.resourceName}"`,
@@ -514,10 +514,10 @@ export class BaseResource implements IResource {
    *
    * The output can then be used as parameters for graphql.
    */
-  recordToVariables = (
+  recordToVariables(
     input: any,
     inputType: GQLType,
-  ): GQLVariables | null => {
+  ): GQLVariables | null {
     const { inputFields } = inputType
     if (!inputFields) {
       // not an input type
