@@ -1,6 +1,6 @@
 {
   "name": "ra-data-postgraphile",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Postgraphile data provider for react-admin",
   "main": "./index.js",
   "module": "esm/index.js",
