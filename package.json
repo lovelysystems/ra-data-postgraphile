@@ -18,7 +18,7 @@
     "build:esm": "rimraf ./build/esm && tsc --outDir build/esm --module es2015",
     "build:copy-files": "node ./scripts/copy-files.js",
     "release:dry": "yarn build && npm publish build --tag latest --dry-run",
-    "release": "yarn build && npm publish build --tag latest",
+    "release": "yarn build && yarn publish build --tag latest",
     "watch": "rimraf ./lib && tsc --watch",
     "prepublishOnly": "yarn build",
     "test": "jest"

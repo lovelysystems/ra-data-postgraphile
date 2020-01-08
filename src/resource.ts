@@ -45,6 +45,7 @@ import {
   QueryVariableTypeMappers,
   QueryVariableTypeMapper,
   IResource,
+  UpdateBuildOptions,
 } from './types'
 
 type Transformations = {
@@ -66,6 +67,12 @@ type IntrospectionResult = {
   queries: [any]
 }
 
+interface ResourceMapping {
+  [key: string]: IResource
+}
+
+type ResourceGetter = (resourceName: string) => IResource | null
+
 /**
  * The resource factory called from ra-data-graphgql
  */
@@ -78,13 +85,9 @@ export default (
     types: createTypeMap(introspectionResults.types),
     queries: createTypeMap(introspectionResults.queries),
   }
-  const resources: { [key: string]: IResource } = {}
+  const resources: ResourceMapping = {}
   const { options } = factory
-  return (
-    raFetchType: string,
-    resourceName: string,
-    params: Record<string, any>,
-  ): Promise<any> => {
+  const getResource = (resourceName: string): IResource => {
     let resource = resources[resourceName]
     if (!resource) {
       const resourceOptions = get(
@@ -96,10 +99,18 @@ export default (
         mappedIntrospection,
         resourceName,
         resourceOptions,
+        getResource,
       )
       resources[resourceName] = resource
     }
-    return resource.fetch(raFetchType, params)
+    return resource
+  }
+  return (
+    raFetchType: string,
+    resourceName: string,
+    params: Record<string, any>,
+  ): Promise<any> => {
+    return getResource(resourceName).fetch(raFetchType, params)
   }
 }
 
@@ -149,12 +160,16 @@ export class BaseResource implements IResource {
   public queryFieldHandlers?: FieldHandlers = SimpleFieldHandlers
   public querySettings: GQLQuerySettings = {}
 
+  public getResource: ResourceGetter = () => null
+
   constructor(
     mappedIntrospection: MappedIntrospectionResult,
     resourceName: string,
     options: ResourceOptions,
+    getResource: any,
   ) {
     this.resourceName = resourceName
+    this.getResource = getResource
     this.typeName = capitalize(resourceName)
     this.queryTypeName = lowercase(resourceName)
     this.pluralizedName = options.pluralizedName || `${this.queryTypeName}s`
@@ -251,7 +266,7 @@ export class BaseResource implements IResource {
 
   getOne(params: GetOneParams) {
     return {
-      query: gql`query ${this.getOneResourceName}(${this.getOneArgs}) {
+      query: `${this.getOneResourceName}(${this.getOneArgs}) {
         ${this.getOneResourceName}(${this.getOneParams}) {
         ${this.createQueryFromType(GET_ONE)}
       }}`,
@@ -268,7 +283,7 @@ export class BaseResource implements IResource {
 
   getMany(params: GetManyParams) {
     return {
-      query: gql`query ${this.pluralizedQueryTypeName}(${this.getManyArgs}) {
+      query: `${this.pluralizedQueryTypeName}(${this.getManyArgs}) {
         ${this.pluralizedQueryTypeName}(filter: ${this.getManyFilter}) {
           nodes {
             ${this.createQueryFromType(GET_ONE)}
@@ -302,13 +317,15 @@ export class BaseResource implements IResource {
 
   create(params: CreateParams) {
     return {
-      query: gql`mutation create${this.typeName}($input: Create${this.typeName}Input!) {
-          create${this.typeName} (
+      query: `create${this.typeName} (
           input: $input
       ) {
         ${this.queryTypeName} {
         ${this.createQueryFromType(CREATE)}
-      }}}`,
+      }}`,
+      meta: {
+        parameters: `$input: Create${this.typeName}Input!`,
+      },
       variables: {
         input: {
           [this.queryTypeName]: this.recordToVariables(
@@ -325,17 +342,24 @@ export class BaseResource implements IResource {
     }
   }
 
-  update(params: UpdateParams) {
+  update(params: UpdateParams, options: UpdateBuildOptions | null = null) {
     const preparedData = this.prepareDataForUpdate(params.data)
+    let resultName = get(options, 'resultName', '')
+    let inputName = 'input'
+    if (resultName) {
+      inputName = inputName + resultName
+      resultName = resultName + ':'
+    }
     return {
-      query: gql`
-        mutation ${this.updateResourceName}($input: ${this.updateResourceInputName}!) {
-          ${this.updateResourceName}(input: $input) {
-          ${this.queryTypeName} {
-          ${this.createQueryFromType(UPDATE)}
-        }}}`,
+      query: `${resultName} ${this.updateResourceName}(input: $${inputName}) {
+        ${this.queryTypeName} {
+        ${this.createQueryFromType(UPDATE)}
+      }}`,
+      meta: {
+        parameters: `$${inputName}: ${this.updateResourceInputName}!`,
+      },
       variables: {
-        input: {
+        [`${inputName}`]: {
           id: this.idConverter(params.id),
           patch: this.recordToVariables(
             preparedData,
@@ -388,11 +412,13 @@ export class BaseResource implements IResource {
 
   deleteOne(params: DeleteParams) {
     return {
-      query: gql`mutation ${this.deleteResourceName}($input: ${this.deleteResourceInputName}!) {
-        ${this.deleteResourceName}(input: $input) {
+      query: `${this.deleteResourceName}(input: $input) {
         ${this.queryTypeName} {
         ${this.createQueryFromType(DELETE)}
-      }}}`,
+      }}`,
+      meta: {
+        parameters: `$input: ${this.deleteResourceInputName}!`,
+      },
       variables: {input: {
         id: this.idConverter(params.id),
       }},
@@ -437,7 +463,7 @@ export class BaseResource implements IResource {
   }
  
   createGetListQuery() {
-    return gql`query ${this.pluralizedQueryTypeName} (
+    return `${this.pluralizedQueryTypeName} (
       $offset: Int!,
       $first: Int!,
       $filter: ${this.typeName}Filter,
@@ -476,6 +502,40 @@ export class BaseResource implements IResource {
   }
 
   /**
+   * manipulate the query to contain the parameters
+   */
+  transformParameters(data: any): any {
+    const { meta, ...rest } = data
+    const params = get(meta, 'parameters')
+    if (!params) {
+      return rest
+    }
+    return {
+      ...rest,
+      query: `WithParameters(${params}) { ${rest.query} }`
+    }
+  }
+
+  /**
+   * Prefix the query with the mutation keyword and add the parameters
+   */
+  transformMutation(data: any): any {
+    const transformed = this.transformParameters(data)
+    const result = {
+      ...transformed,
+      query: gql`mutation ${transformed.query}`
+    }
+    return result
+  }
+
+  transformQuery(data: any): any {
+    return {
+      ...data,
+      query: gql`query ${data.query}`
+    }
+  }
+
+  /**
    * The fetch method called from ra-data-graphql
    */
   fetch(raFetchType: string, params: any) {
@@ -485,17 +545,17 @@ export class BaseResource implements IResource {
       )
     }
     switch (raFetchType) {
-      case GET_ONE: return this.getOne(params)
-      case GET_MANY: return this.getMany(params)
-      case GET_MANY_REFERENCE: return this.getManyReference(params)
-      case GET_LIST: return this.getList(params)
+      case GET_ONE: return this.transformQuery(this.getOne(params))
+      case GET_MANY: return this.transformQuery(this.getMany(params))
+      case GET_MANY_REFERENCE: return this.transformQuery(this.getManyReference(params))
+      case GET_LIST: return this.transformQuery(this.getList(params))
       case CREATE:
         return this.hasQuery(`create${this.typeName}`)
-          ? this.create(params)
+          ? this.transformMutation(this.create(params))
           : throwError()
       case UPDATE:
         return this.hasQuery(this.updateResourceName)
-          ? this.update(params)
+          ? this.transformMutation(this.update(params))
           : throwError()
       case UPDATE_MANY:
         return this.hasQuery(this.updateResourceName)
@@ -503,7 +563,7 @@ export class BaseResource implements IResource {
           : throwError()
       case DELETE:
         return this.hasQuery(`delete${this.typeName}`)
-          ? this.deleteOne(params)
+          ? this.transformMutation(this.deleteOne(params))
           : throwError()
       default: throwError()
     }

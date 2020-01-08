@@ -147,7 +147,7 @@ describe('resource', () => {
       })
       expect(result.parseResponse).not.toBeNull()
       expect(print(result.query))
-        .toStrictEqual(`mutation createTest($input: CreateTestInput!) {
+        .toStrictEqual(`mutation WithParameters($input: CreateTestInput!) {
   createTest(input: $input) {
     test {
       nodeId
@@ -193,7 +193,7 @@ describe('resource', () => {
         },
       })
       expect(print(result.query))
-        .toStrictEqual(`mutation updateTest($input: UpdateTestInput!) {
+        .toStrictEqual(`mutation WithParameters($input: UpdateTestInput!) {
   updateTest(input: $input) {
     test {
       nodeId
@@ -424,7 +424,7 @@ describe('resource', () => {
       const result = provider(DELETE, 'Test', { id: 1 })
       expect(result.variables).toStrictEqual({input: { id: 1 }})
       expect(print(result.query))
-        .toStrictEqual(`mutation deleteTest($input: DeleteTestInput!) {
+        .toStrictEqual(`mutation WithParameters($input: DeleteTestInput!) {
   deleteTest(input: $input) {
     test {
       nodeId
@@ -559,7 +559,7 @@ describe('resource', () => {
         },
       })
       expect(print(result.query))
-        .toStrictEqual(`mutation createCompound($input: CreateCompoundInput!) {
+        .toStrictEqual(`mutation WithParameters($input: CreateCompoundInput!) {
   createCompound(input: $input) {
     compound {
       nodeId
@@ -611,7 +611,7 @@ describe('resource', () => {
         },
       })
       expect(print(result.query))
-        .toStrictEqual(`mutation updateCompoundByNodeId($input: UpdateCompoundByNodeIdInput!) {
+        .toStrictEqual(`mutation WithParameters($input: UpdateCompoundByNodeIdInput!) {
   updateCompoundByNodeId(input: $input) {
     compound {
       nodeId

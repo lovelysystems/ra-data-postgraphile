@@ -56,7 +56,12 @@ describe('Resource Factory', () => {
   it('allows to provide a resource specific provider class', () => {
     class MyProvider extends BaseResource {
       getList = () => {
-        return 'MyProvider.getList'
+        return {
+          query: 'getList { id }',
+          variables: {
+            v: 1
+          }
+        }
       }
     }
     const provider = resourceFactory(
@@ -74,7 +79,7 @@ describe('Resource Factory', () => {
     const result = provider(GET_LIST, 'Test', {
       pagination: { page: 1, perPage: 10 },
     })
-    expect(result).toStrictEqual('MyProvider.getList')
+    expect(result.variables).toStrictEqual({v: 1})
   })
 
 })

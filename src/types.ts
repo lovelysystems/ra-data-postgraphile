@@ -4,6 +4,14 @@ import {
   CREATE,
   UPDATE,
   DELETE,
+  GetOneParams,
+  GetManyParams,
+  GetManyReferenceParams,
+  UpdateParams,
+  UpdateManyParams,
+  DeleteParams,
+  CreateParams,
+  GetListParams,
 } from 'ra-core'
 
 export type QueryVariableTypeMapper = (value: Record<string, any>) => Record<string, any>
@@ -68,6 +76,21 @@ export type ResourceFactory = (
 
 export interface IResource {
   fetch(raFetchType: string, params: Record<string, any>): any
+  getOne(params: GetOneParams): any
+  getMany(params: GetManyParams): any
+  getList(params: GetListParams): any
+  create(params: CreateParams): any
+  update(params: UpdateParams, options?: UpdateBuildOptions | null): any
+  updateMany(params: UpdateManyParams): any
+  deleteOne(params: DeleteParams): any
+  getManyReference(params: GetManyReferenceParams): any
+}
+
+export interface BuildOptions {
+  resultName: string | undefined
+}
+
+export interface UpdateBuildOptions extends BuildOptions {
 }
 
 export interface IResourceConstrutor {

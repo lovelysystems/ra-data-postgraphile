@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.4
+
+- allow to build more complex update mutations
+  It is now possible to combine multiple mutations into one.
+
 ## v0.5.3
 
 - BaseResource methods as class methods not properties
