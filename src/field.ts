@@ -1,14 +1,12 @@
-import { get, reduce, sortBy } from 'lodash'
-import { fieldIsObjectOrListOfObject } from './utils'
+import { get } from 'lodash'
 import {
   GQLType,
-  GQLTypeMap,
   GQLQueryProperties,
   FieldHandler,
   FieldHandlers,
   QueryFromTypeParams
 } from './types'
-import { isObjectOrListOfObjectsType, fieldType } from './gqltype'
+import { fieldType } from './gqltype'
 
 /**
  * The ObjectField can be used for list of objects and for pure object fields.
