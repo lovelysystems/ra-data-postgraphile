@@ -1,14 +1,12 @@
-import get from 'lodash/get'
-import {
-  fieldIsObjectOrListOfObject,
-} from './utils'
+import { get, reduce, sortBy } from 'lodash'
+import { fieldIsObjectOrListOfObject } from './utils'
 import {
   GQLType,
   GQLTypeMap,
   GQLQueryProperties,
   FieldHandler,
   FieldHandlers,
-  QueryFromTypeParams,
+  QueryFromTypeParams
 } from './types'
 import { isObjectOrListOfObjectsType, fieldType } from './gqltype'
 
@@ -21,13 +19,21 @@ import { isObjectOrListOfObjectsType, fieldType } from './gqltype'
  *   <all fields of the type>
  * }
  */
-export const ObjectField = (field: GQLType, params: QueryFromTypeParams) => {
+export const ObjectField = (
+  field: GQLType,
+  parameters: string | undefined,
+  params: QueryFromTypeParams
+) => {
   const { typeMap } = params
   const nodeType = fieldType(field, typeMap)
   if (!nodeType) {
     return ''
   }
-  return `${field.name} { ${createQueryFromType({ ...params, typeName: nodeType.name })} }`
+  const paramString = (parameters && `(${parameters})`) || ''
+  return `${field.name}${paramString} { ${createQueryFromType({
+    ...params,
+    typeName: nodeType.name
+  })} }`
 }
 
 /**
@@ -38,7 +44,8 @@ export const ObjectField = (field: GQLType, params: QueryFromTypeParams) => {
  */
 export const SimpleFieldHandler = (
   field: GQLType,
-  params: QueryFromTypeParams,
+  parameters: string | undefined,
+  params: QueryFromTypeParams
 ): string => {
   const { settings } = params
   if (!settings) {
@@ -49,7 +56,7 @@ export const SimpleFieldHandler = (
     // render as a simple field
     return `${field.name}`
   }
-  return ObjectField(field, params)
+  return ObjectField(field, parameters, params)
 }
 
 
@@ -65,14 +72,46 @@ export const createQueryFromType = (params: QueryFromTypeParams): string => {
     return ''
   }
   let defaultHandler: FieldHandler | undefined = get(handlers, '__default')
-  return typeFields.reduce((current: string, field: GQLType) => {
-    const setting = get(settings, field.name)
-    if (setting) {
-      let handler: FieldHandler | undefined = get(handlers, field.name, defaultHandler)
+
+  const typeFieldsMap: { [fieldName: string]: GQLType } = typeFields.reduce(
+    (current: any | undefined, field: GQLType) => {
+      current[field.name] = field
+      return current
+    },
+    {}
+  )
+  const sortedKeys: string[] = Object.keys(settings || {}).sort()
+  return sortedKeys.reduce((current: string, fieldName: string) => {
+    let setting: GQLQueryProperties | boolean | undefined = get(
+      settings,
+      fieldName
+    )
+
+    let aliasName: string = ''
+    let parameters: string | undefined
+    if (fieldName.startsWith('=')) {
+      // fields starting with = are treated as alias fields for query with possible parameters
+      aliasName = fieldName.substr(1)
+      parameters = get(setting, 'parameters')
+      const query = get(setting, 'query')
+      fieldName = Object.keys(query || {})[0]
+      setting = query[fieldName]
+    }
+    // check if field is available in gql schema
+    if (fieldName in typeFieldsMap) {
+      let handler: FieldHandler | undefined = get(
+        handlers,
+        fieldName,
+        defaultHandler
+      )
       if (handler) {
-        const fieldQuery = handler(field, { ...params, settings: setting })
+        const fieldQuery = handler(typeFieldsMap[fieldName], parameters, {
+          ...params,
+          settings: setting
+        })
         if (fieldQuery && fieldQuery !== '') {
-          return `${current} ${fieldQuery}`
+          const alias = (aliasName && `${aliasName}: `) || ''
+          return `${current} ${alias}${fieldQuery}`
         }
       }
     }

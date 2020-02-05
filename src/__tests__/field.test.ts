@@ -16,7 +16,7 @@ describe('createQueryFromType', () => {
             Content: ContentType,
             ContentBlock: ContentBlockType,
           },
-          handlers: SimpleFieldHandlers
+          handlers: SimpleFieldHandlers,
           settings: {
             nodeId: true,
             name: true,
@@ -24,6 +24,14 @@ describe('createQueryFromType', () => {
             block: {
               type: true
             }
+            '=de': {
+              parameters: 'filter: {lang: {equalTo: DE}}',
+              query: {
+                blocks: {
+                  type: true,
+                }
+              }
+            },
             pubTs: true,
             deleted: true,
             id: true,
@@ -33,7 +41,30 @@ describe('createQueryFromType', () => {
         }
       ),
     ).toStrictEqual(
-      ' nodeId name blocks block {  type } pubTs deleted id ts author',
+      ' de: blocks(filter: {lang: {equalTo: DE}}) {  type } author block {  type } blocks deleted id name nodeId pubTs ts',
+    )
+  })
+
+  it('allows to define alias w/o parameters', () => {
+    expect(
+      createQueryFromType(
+        {
+          typeName: 'Content',
+          typeMap: {
+            Content: ContentType,
+            ContentBlock: ContentBlockType,
+          },
+          handlers: SimpleFieldHandlers,
+          settings: {
+            '=effective': {
+              query: {
+                pubTs: true,
+            }
+          }
+        }
+      ),
+    ).toStrictEqual(
+      ' effective: pubTs',
     )
   })
 
@@ -54,16 +85,16 @@ describe('createQueryFromType', () => {
           typeMap: {
             Content: ContentType,
           },
-          handlers: myFieldHandlers
+          handlers: myFieldHandlers,
           settings: {
             nodeId: true,
             name: true,
             id: true,
-          }
+          },
         }
       ),
     ).toStrictEqual(
-      ' changedNameForNodeId name id',
+      ' id name changedNameForNodeId',
     )
   })
   })
