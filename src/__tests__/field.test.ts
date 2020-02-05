@@ -3,7 +3,7 @@ import {
   createQueryFromType,
   SimpleFieldHandlers,
 } from '../field'
-import { ContentPatch, ContentType, ContentBlockType } from './helpers'
+import { ContentType, ContentBlockType } from './helpers'
 
 describe('createQueryFromType', () => {
 
