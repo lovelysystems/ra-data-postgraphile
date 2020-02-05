@@ -23,9 +23,9 @@ describe('createQueryFromType', () => {
             blocks: true,
             block: {
               type: true
-            }
+            },
             '=de': {
-              parameters: 'filter: {lang: {equalTo: DE}}',
+              arguments: 'filter: {lang: {equalTo: DE}}',
               query: {
                 blocks: {
                   type: true,
@@ -45,7 +45,7 @@ describe('createQueryFromType', () => {
     )
   })
 
-  it('allows to define alias w/o parameters', () => {
+  it('allows to define alias w/o arguments', () => {
     expect(
       createQueryFromType(
         {

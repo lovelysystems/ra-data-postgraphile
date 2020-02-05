@@ -21,7 +21,7 @@ import { isObjectOrListOfObjectsType, fieldType } from './gqltype'
  */
 export const ObjectField = (
   field: GQLType,
-  parameters: string | undefined,
+  fieldArguments: string | undefined,
   params: QueryFromTypeParams
 ) => {
   const { typeMap } = params
@@ -29,8 +29,8 @@ export const ObjectField = (
   if (!nodeType) {
     return ''
   }
-  const paramString = (parameters && `(${parameters})`) || ''
-  return `${field.name}${paramString} { ${createQueryFromType({
+  const argString = (fieldArguments && `(${fieldArguments})`) || ''
+  return `${field.name}${argString} { ${createQueryFromType({
     ...params,
     typeName: nodeType.name
   })} }`
@@ -44,7 +44,7 @@ export const ObjectField = (
  */
 export const SimpleFieldHandler = (
   field: GQLType,
-  parameters: string | undefined,
+  fieldArguments: string | undefined,
   params: QueryFromTypeParams
 ): string => {
   const { settings } = params
@@ -56,7 +56,7 @@ export const SimpleFieldHandler = (
     // render as a simple field
     return `${field.name}`
   }
-  return ObjectField(field, parameters, params)
+  return ObjectField(field, fieldArguments, params)
 }
 
 
@@ -88,11 +88,11 @@ export const createQueryFromType = (params: QueryFromTypeParams): string => {
     )
 
     let aliasName: string = ''
-    let parameters: string | undefined
+    let fieldArguments: string | undefined
     if (fieldName.startsWith('=')) {
-      // fields starting with = are treated as alias fields for query with possible parameters
+      // fields starting with = are treated as alias fields for query with possible arguments
       aliasName = fieldName.substr(1)
-      parameters = get(setting, 'parameters')
+      fieldArguments = get(setting, 'arguments')
       const query = get(setting, 'query')
       fieldName = Object.keys(query || {})[0]
       setting = query[fieldName]
@@ -105,7 +105,7 @@ export const createQueryFromType = (params: QueryFromTypeParams): string => {
         defaultHandler
       )
       if (handler) {
-        const fieldQuery = handler(typeFieldsMap[fieldName], parameters, {
+        const fieldQuery = handler(typeFieldsMap[fieldName], fieldArguments, {
           ...params,
           settings: setting
         })
