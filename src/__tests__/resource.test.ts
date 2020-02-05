@@ -69,9 +69,9 @@ describe('resource', () => {
       expect(result.variables).toStrictEqual({ id: 1 })
       expect(print(result.query)).toStrictEqual(`query test($id: Int!) {
   test(id: $id) {
-    nodeId
-    name
     id
+    name
+    nodeId
   }
 }
 `)
@@ -97,9 +97,9 @@ describe('resource', () => {
       expect(print(result.query)).toStrictEqual(`query tests($ids: [Int!]) {
   tests(filter: {id: {in: $ids}}) {
     nodes {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
   }
 }
@@ -150,9 +150,9 @@ describe('resource', () => {
         .toStrictEqual(`mutation WithParameters($input: CreateTestInput!) {
   createTest(input: $input) {
     test {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
   }
 }
@@ -196,9 +196,9 @@ describe('resource', () => {
         .toStrictEqual(`mutation WithParameters($input: UpdateTestInput!) {
   updateTest(input: $input) {
     test {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
   }
 }
@@ -289,9 +289,9 @@ describe('resource', () => {
         .toStrictEqual(`query tests($offset: Int!, $first: Int!, $filter: TestFilter, $orderBy: [TestsOrderBy!]) {
   tests(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
     nodes {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
     totalCount
   }
@@ -374,9 +374,9 @@ describe('resource', () => {
         .toStrictEqual(`query tests($offset: Int!, $first: Int!, $filter: TestFilter, $orderBy: [TestsOrderBy!]) {
   tests(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
     nodes {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
     totalCount
   }
@@ -427,9 +427,9 @@ describe('resource', () => {
         .toStrictEqual(`mutation WithParameters($input: DeleteTestInput!) {
   deleteTest(input: $input) {
     test {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
   }
 }
@@ -471,9 +471,9 @@ describe('resource', () => {
       expect(print(result.query))
         .toStrictEqual(`query compoundByNodeId($id: ID!) {
   compoundByNodeId(nodeId: $id) {
-    nodeId
-    name
     id
+    name
+    nodeId
   }
 }
 `)
@@ -502,9 +502,9 @@ describe('resource', () => {
       expect(print(result.query)).toStrictEqual(`query compounds($ids: [ID!]) {
   compounds(filter: {nodeId: {in: $ids}}) {
     nodes {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
   }
 }
@@ -562,9 +562,9 @@ describe('resource', () => {
         .toStrictEqual(`mutation WithParameters($input: CreateCompoundInput!) {
   createCompound(input: $input) {
     compound {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
   }
 }
@@ -614,9 +614,9 @@ describe('resource', () => {
         .toStrictEqual(`mutation WithParameters($input: UpdateCompoundByNodeIdInput!) {
   updateCompoundByNodeId(input: $input) {
     compound {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
   }
 }
@@ -708,9 +708,9 @@ describe('resource', () => {
         .toStrictEqual(`query compounds($offset: Int!, $first: Int!, $filter: CompoundFilter, $orderBy: [CompoundsOrderBy!]) {
   compounds(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
     nodes {
-      nodeId
-      name
       id
+      name
+      nodeId
     }
     totalCount
   }

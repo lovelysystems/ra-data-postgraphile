@@ -1,5 +1,10 @@
 # Changelog
 
+## unreleased
+
+- allow field [alias](https://graphql.org/learn/queries/#aliases) and [arguments](https://graphql.org/learn/queries/#arguments)
+  in query settings
+
 ## v0.5.4
 
 - allow to build more complex update mutations

@@ -42,8 +42,12 @@ export type GQLTypeMap = {
   [key: string]: GQLType
 }
 
+export type GQLFieldSettings = {
+  arguments?: string
+}
+
 export type GQLQueryProperties = {
-  [propertyName: string]: boolean | GQLQueryProperties
+  [propertyName: string]: boolean | GQLQueryProperties | GQLFieldSettings
 }
 
 export type GQLQuerySettings = {
@@ -64,7 +68,7 @@ export type IntrospectedTypes = {
 
 /**
  * Resources
- * 
+ *
  * Resources can be configured via the resource options in the definition of
  * react admin.
  */
@@ -140,7 +144,7 @@ export type QueryFromTypeParams = {
   settings?: GQLQueryProperties | boolean
 }
 
-export type FieldHandler = 
+export type FieldHandler =
   (field: GQLType, params: QueryFromTypeParams) => string
 
 export interface FieldHandlers {
