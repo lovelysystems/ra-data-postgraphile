@@ -193,7 +193,7 @@ export class BaseResource implements IResource {
         `Query "${this.queryTypeName}" for type "${this.typeName}" not found in introspection`,
       )
     }
-    
+
     // Getting the primary keys:
     //   The arguments for the query to get the resource (defined as lowercased
     //   resource name) are the fields defining the primary key of the resource.
@@ -208,7 +208,7 @@ export class BaseResource implements IResource {
     this.primaryKeyTypeName = this.hasCompoundKey
       ? 'ID'
       : primaryKeys[0].type.name || primaryKeys[0].type.ofType.name
-    
+
     this.prepareForReactAdmin = this.hasCompoundKey
       ? (data: any): any => {
           return {
@@ -350,6 +350,7 @@ export class BaseResource implements IResource {
       inputName = inputName + resultName
       resultName = resultName + ':'
     }
+    const inputId = this.hasCompoundKey ? 'nodeId' : this.primaryKeyFieldName
     return {
       query: `${resultName} ${this.updateResourceName}(input: $${inputName}) {
         ${this.queryTypeName} {
@@ -360,7 +361,7 @@ export class BaseResource implements IResource {
       },
       variables: {
         [`${inputName}`]: {
-          id: this.idConverter(params.id),
+          [inputId]: this.idConverter(params.id),
           patch: this.recordToVariables(
             preparedData,
             this.introspection.patchType,
@@ -461,7 +462,7 @@ export class BaseResource implements IResource {
       settings: this.querySettings[forQuery],
     })
   }
- 
+
   createGetListQuery() {
     return `${this.pluralizedQueryTypeName} (
       $offset: Int!,

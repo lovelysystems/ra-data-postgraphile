@@ -2,6 +2,8 @@
 
 ## unreleased
 
+- fix update for compound key resources
+
 - allow field [alias](https://graphql.org/learn/queries/#aliases) and [arguments](https://graphql.org/learn/queries/#arguments)
   in query settings
 

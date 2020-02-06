@@ -603,7 +603,7 @@ describe('resource', () => {
       })
       expect(result.variables).toStrictEqual({
         input: {
-          id: 'nodeId:1',
+          nodeId: 'nodeId:1',
           patch: {
             id: 1,
             name: 'the name',
