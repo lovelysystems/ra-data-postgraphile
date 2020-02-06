@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## v0.6.0
 
 - fix update for compound key resources
 
