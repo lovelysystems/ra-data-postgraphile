@@ -1,5 +1,7 @@
 # ra-data-postgraphile
 
+[![Build Status](https://travis-ci.com/lovelysystems/ra-data-postgraphile.svg?branch=master)](https://travis-ci.com/lovelysystems/ra-data-postgraphile)
+
 Postgraphile data provider for react-admin
 
 This data provider heavily extends https://github.com/BowlingX/ra-postgraphile with a more generic approach.

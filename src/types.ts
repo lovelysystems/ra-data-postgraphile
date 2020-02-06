@@ -145,7 +145,7 @@ export type QueryFromTypeParams = {
 }
 
 export type FieldHandler =
-  (field: GQLType, params: QueryFromTypeParams) => string
+  (field: GQLType, fieldArguments: string | undefined, params: QueryFromTypeParams) => string
 
 export interface FieldHandlers {
   [fieldName: string]: FieldHandler
