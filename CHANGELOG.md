@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2020-02-06 / 0.6.2
 
 ### Fixes
 
