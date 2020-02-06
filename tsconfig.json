@@ -2,12 +2,9 @@
   "compilerOptions": {
     "outDir": "lib",
     "rootDir": "src",
-    "target": "es6",
-    "module": "es6",
-    "lib": [
-      "es2017",
-      "dom"
-    ],
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["es6", "dom"],
     "declaration": true,
     "allowJs": false,
     "skipLibCheck": true,
@@ -19,6 +16,11 @@
     "resolveJsonModule": true,
     "jsx": "react"
   },
-  "exclude": ["**/__tests__/*", "**/*.test.ts", "**/*.test.tsx", "**/*.test.js"],
+  "exclude": [
+    "**/__tests__/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.test.js"
+  ],
   "include": ["src"]
 }

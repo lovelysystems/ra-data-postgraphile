@@ -8,6 +8,7 @@
   "repository": "github:lovelysystems/ra-data-postgraphile",
   "homepage": "https://github.com/lovelysystems/ra-data-postgraphile#readme",
   "bugs": "https://github.com/lovelysystems/ra-data-postgraphile/issues",
+  "author": "Lovely Systems GmbH <office@lovelysystems.com>",
   "authors": [
     "Jürgen Kartnaller"
   ],
@@ -17,6 +18,7 @@
     "build:cjs": "rimraf ./build && tsc --outdir build",
     "build:esm": "rimraf ./build/esm && tsc --outDir build/esm --module es2015",
     "build:copy-files": "node ./scripts/copy-files.js",
+    "postbuild": "cp README.md CHANGELOG.md LICENCE build/",
     "release:dry": "yarn build && npm publish build --tag latest --dry-run",
     "release": "yarn build && yarn publish build --tag latest",
     "watch": "rimraf ./lib && tsc --watch",
