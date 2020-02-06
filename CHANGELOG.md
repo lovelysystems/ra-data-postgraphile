@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.1
+
+- fix brown bag release
+
 ## v0.6.0
 
 - fix update for compound key resources

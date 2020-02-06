@@ -121,6 +121,18 @@ const PgConnectionFilterPlugin = require('postgraphile-plugin-connection-filter'
 
  - implement DELETE_MANY
 
+## Release
+
+To release the package:
+
+* update changes (version should match the one you chose in the next step)
+
+* update the version: `yarn version [--major|minor|patch]`
+
+* push changes: `git push && git push --tags`
+
+* publish to npmjs.com by running `yarn release` (might require to run `yarn login` beforehand)
+
 ## License
 
 ra-data-postgraphile is licensed under the [Apache 2.0](https://github.com/lovelysystems/ra-data-postgraphile/blob/master/LICENSE), sponsored and supported by [Lovely Systems](https://www.lovelysystems.com).
