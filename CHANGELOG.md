@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- fixed commonjs build
+
 ## v0.6.1
 
 - fix brown bag release
@@ -47,7 +53,7 @@
 
 - added DELETE
 - Only provide methods if the backend provides them for:
-   create, update, updateMany, delete
+  create, update, updateMany, delete
 
 ## v0.1.2
 
