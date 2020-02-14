@@ -38,6 +38,24 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     "!in": ['notIn', (value: string[]) => value.map(Number)],
     default: ['in', (value: string[]) => value.map(Number)],
   },
+  IntList: {
+    // XXX use = and != or better the explicit methods or both? i'd go for only explicit
+    '=': ['anyEqualTo', Number],
+    "!=": ['anyNotEqualTo', Number],
+    "anyEqualTo": ['anyEqualTo', Number],
+    "anyNotEqualTo": ['anyNotEqualTo', Number],
+    default: ['anyEqualTo', Number],
+  },
+  IntListArray: {
+    '=': ['equalTo', (value: string[]) => value.map(Number)],
+    "!=": ['notEqualTo', (value: string[]) => value.map(Number)],
+    "overlaps": ['overlaps', (value: string[]) => value.map(Number)],
+    "contains": ['contains', (value: string[]) => value.map(Number)],
+    "containedBy": ['containedBy', (value: string[]) => value.map(Number)],
+    "distinctFrom": ['distinctFrom', (value: string[]) => value.map(Number)],
+    "notDistinctFrom": ['notDistinctFrom', (value: string[]) => value.map(Number)],
+    default: ['overlaps', (value: string[]) => value.map(Number)],
+  },
   ENUM: {
     '=': ['equalTo'],
     '!=': ['notEqualTo'],
@@ -64,6 +82,10 @@ export const mapFilterType = (
   const filter = typeToFilter || TYPE_TO_FILTER_MAPPINGS
   // use different type names in case the provided value is an array
   // First try to find a mapping for the type name (e.g. String).
+
+  // XXX it's not optimal that the type array is only recognized when the value is an array.
+  // IntListFilter also support integers as arguments for filters eg {anyEqualTo: Int}
+
   let typeName = Array.isArray(value) ? `${type.name}Array` : type.name
   if (!filter[typeName]) {
     // Try to get a mapping for the kind (e.g. ENUM)
@@ -75,7 +97,7 @@ export const mapFilterType = (
   let operation = 'default'
   if (operations.length > 0) {
     operation = operations[0]
-  } 
+  }
   const [operator, transformator = (v: any) => v] = filter[typeName][operation] || [null]
   if (!operator) {
     throw new Error(`Operation "${operation}" for type "${typeName}" not implemented.`)
@@ -99,6 +121,10 @@ export const createFilter = (
     const maybeType = type.fields.find((f: GQLType) => f.name === name)
     if (maybeType) {
       const subType = maybeType.type.ofType || maybeType.type
+
+      if (maybeType.type.kind === 'LIST') {
+        subType.name = `${maybeType.type.ofType.name}List`
+      }
       return {
         ...next,
         [name]: mapFilterType(subType, fields[key], operations, typeToFilter),
