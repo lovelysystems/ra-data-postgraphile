@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- do not modify GraphQL schema when computing filters
+
 ## 2020-02-17 / 0.7.0
 
 ### Feature

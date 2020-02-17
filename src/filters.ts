@@ -116,10 +116,10 @@ export const createFilter = (
     const [name, ...operations] = getFilterParameters(key)
     const maybeType = type.fields.find((f: GQLType) => f.name === name)
     if (maybeType) {
-      const subType = maybeType.type.ofType || maybeType.type
+      let subType = maybeType.type.ofType || maybeType.type
 
       if (maybeType.type.kind === 'LIST') {
-        subType.name = `${maybeType.type.ofType.name}List`
+        subType = { ...subType, name: `${maybeType.type.ofType.name}List` }
       }
       return {
         ...next,
