@@ -134,17 +134,17 @@ describe('filters', () => {
       it('default', () => {
         expect(mapFilterType(IntListType, 2, [])).toStrictEqual({ anyEqualTo: 2 })
       })
-      it('anyEqualTo', () => {
-        expect(mapFilterType(IntListType, '2', ['anyEqualTo'])).toStrictEqual({ anyEqualTo: 2 })
-      })
-      it('anyNotEqualTo', () => {
-        expect(mapFilterType(IntListType, 2, ['anyNotEqualTo'])).toStrictEqual({ anyNotEqualTo: 2 })
-      })
       it('=', () => {
         expect(mapFilterType(IntListType, '2', ['='])).toStrictEqual({ anyEqualTo: 2 })
       })
       it('!=', () => {
         expect(mapFilterType(IntListType, 2, ['!='])).toStrictEqual({ anyNotEqualTo: 2 })
+      })
+      it('anyEqualTo', () => {
+        expect(mapFilterType(IntListType, '2', ['anyEqualTo'])).toStrictEqual({ anyEqualTo: 2 })
+      })
+      it('anyNotEqualTo', () => {
+        expect(mapFilterType(IntListType, 2, ['anyNotEqualTo'])).toStrictEqual({ anyNotEqualTo: 2 })
       })
     })
 

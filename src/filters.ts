@@ -39,7 +39,6 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     default: ['in', (value: string[]) => value.map(Number)],
   },
   IntList: {
-    // XXX use = and != or better the explicit methods or both? i'd go for only explicit
     '=': ['anyEqualTo', Number],
     "!=": ['anyNotEqualTo', Number],
     "anyEqualTo": ['anyEqualTo', Number],
@@ -82,9 +81,6 @@ export const mapFilterType = (
   const filter = typeToFilter || TYPE_TO_FILTER_MAPPINGS
   // use different type names in case the provided value is an array
   // First try to find a mapping for the type name (e.g. String).
-
-  // XXX it's not optimal that the type array is only recognized when the value is an array.
-  // IntListFilter also support integers as arguments for filters eg {anyEqualTo: Int}
 
   let typeName = Array.isArray(value) ? `${type.name}Array` : type.name
   if (!filter[typeName]) {
