@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Feature
+
+- Support `IntListFilters` for field type `[Int]`
+
 ## 2020-02-06 / 0.6.2
 
 ### Fixes

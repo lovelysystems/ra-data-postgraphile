@@ -5,6 +5,10 @@ const IntType: GQLType = {
   name: 'Int',
 }
 
+const IntListType: GQLType = {
+  name: 'IntList',
+}
+
 const StringType: GQLType = {
   name: 'String',
 }
@@ -126,6 +130,52 @@ describe('filters', () => {
       })
     })
 
+    describe('type IntList operation', () => {
+      it('default', () => {
+        expect(mapFilterType(IntListType, 2, [])).toStrictEqual({ anyEqualTo: 2 })
+      })
+      it('=', () => {
+        expect(mapFilterType(IntListType, '2', ['='])).toStrictEqual({ anyEqualTo: 2 })
+      })
+      it('!=', () => {
+        expect(mapFilterType(IntListType, 2, ['!='])).toStrictEqual({ anyNotEqualTo: 2 })
+      })
+      it('anyEqualTo', () => {
+        expect(mapFilterType(IntListType, '2', ['anyEqualTo'])).toStrictEqual({ anyEqualTo: 2 })
+      })
+      it('anyNotEqualTo', () => {
+        expect(mapFilterType(IntListType, 2, ['anyNotEqualTo'])).toStrictEqual({ anyNotEqualTo: 2 })
+      })
+    })
+
+
+    describe('type IntListArray operation', () => {
+      it('default', () => {
+        expect(mapFilterType(IntListType, [2, 3], [])).toStrictEqual({ overlaps: [2, 3] })
+      })
+      it('=', () => {
+        expect(mapFilterType(IntListType, [2, 3], ['='])).toStrictEqual({ equalTo: [2, 3] })
+      })
+      it('!=', () => {
+        expect(mapFilterType(IntListType, [2, 3], ['!='])).toStrictEqual({ notEqualTo: [2, 3] })
+      })
+      it('overlaps', () => {
+        expect(mapFilterType(IntListType, [2, 3], ['overlaps'])).toStrictEqual({ overlaps: [2, 3] })
+      })
+      it('contains', () => {
+        expect(mapFilterType(IntListType, [2, 3], ['contains'])).toStrictEqual({ contains: [2, 3] })
+      })
+      it('containedBy', () => {
+        expect(mapFilterType(IntListType, [2, 3], ['containedBy'])).toStrictEqual({ containedBy: [2, 3] })
+      })
+      it('distinctFrom', () => {
+        expect(mapFilterType(IntListType, [2, 3], ['distinctFrom'])).toStrictEqual({ distinctFrom: [2, 3] })
+      })
+      it('notDistinctFrom', () => {
+        expect(mapFilterType(IntListType, [2, 3], ['notDistinctFrom'])).toStrictEqual({ notDistinctFrom: [2, 3] })
+      })
+    })
+
     describe('type ENUM operation', () => {
       it('default', () => {
         expect(mapFilterType(ENUMType, 'V', [])).toStrictEqual({ equalTo: 'V' })
@@ -176,6 +226,8 @@ describe('filters', () => {
       fields: [
         { name: 'i', type: { name: 'Int' } },
         { name: 'ia', type: { name: 'Int' } },
+        { name: 'intList', type: { kind: 'LIST', ofType: { kind: 'SCALAR', name: 'Int' } } },
+        { name: 'intList2', type: { kind: 'LIST', ofType: { kind: 'SCALAR', name: 'Int' } } },
         { name: 's', type: { name: 'String' } },
         { name: 's2', type: { ofType: { name: 'String' } } },
       ],
@@ -195,16 +247,21 @@ describe('filters', () => {
           {
             'i !=': 1,
             ia: [1, 2],
+            intList: 3,
+            intList2: [3, 4],
             's null': null,
             s2: 's2',
           },
           FilterType,
+          null
         ),
       ).toStrictEqual({
         and: [
           {
             i: { notEqualTo: 1 },
             ia: { in: [1, 2] },
+            intList: { anyEqualTo: 3 },
+            intList2: { overlaps: [3, 4] },
             s: { isNull: true },
             s2: { likeInsensitive: '%s2%' },
           },
