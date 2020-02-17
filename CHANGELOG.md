@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2020-02-17 / 0.7.1
 
 ### Fixes
 
