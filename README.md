@@ -127,6 +127,8 @@ To release the package:
 
 * update changes (version should match the one you chose in the next step)
 
+* `git add CHANGELOG.md` to make sure changelog update is added to the next commit done by `yarn version`
+
 * update the version: `yarn version [--major|minor|patch]`
 
 * push changes: `git push && git push --tags`
