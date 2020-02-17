@@ -127,10 +127,12 @@ To release the package:
 
 * update changes (version should match the one you chose in the next step)
 
-* publish to npmjs.com by running `yarn release` (might require to run `yarn login` beforehand)
-  (this will ask you for a new version number)
+* update the version: `yarn version [--major|minor|patch]`
 
-* push changes and tag: `git push && git push --tags`
+* push changes: `git push && git push --tags`
+
+* publish to npmjs.com by running `yarn release` (might require to run `yarn login` beforehand)
+
 
 ## License
 
