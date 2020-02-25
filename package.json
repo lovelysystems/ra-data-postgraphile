@@ -66,9 +66,9 @@
     "react-router": "^5.1.0",
     "react-router-dom": "^5.1.0",
     "redux": "^3.7.2 || ^4.0.3",
-    "redux-saga": "1.1.1",
+    "redux-saga": "^1.1.x",
     "ts-jest": "^25.2.x",
-    "typescript": "3.7.5",
-    "yarn-deduplicate": "1.1.1"
+    "typescript": "^3.7.x",
+    "yarn-deduplicate": "^1.1.x"
   }
 }
