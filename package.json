@@ -14,6 +14,7 @@
   ],
   "license": "Apache-2.0",
   "scripts": {
+    "postinstall": "yarn-deduplicate -s fewer yarn.lock",
     "build": "yarn run build:cjs && yarn run build:esm && yarn build:copy-files",
     "build:cjs": "rimraf ./build && tsc --outdir build",
     "build:esm": "rimraf ./build/esm && tsc --outDir build/esm --module es2015",
@@ -67,6 +68,7 @@
     "redux": "^3.7.2 || ^4.0.3",
     "redux-saga": "1.1.1",
     "ts-jest": "24.1.0",
-    "typescript": "3.6.3"
+    "typescript": "3.7.5",
+    "yarn-deduplicate": "1.1.1"
   }
 }
