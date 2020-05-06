@@ -14,7 +14,9 @@ import {
   GetListParams,
 } from 'ra-core'
 
-export type QueryVariableTypeMapper = (value: Record<string, any>) => Record<string, any>
+export type QueryVariableTypeMapper = (
+  value: Record<string, any>,
+) => Record<string, any>
 
 export type QueryVariableTypeMappers = {
   [key: string]: QueryVariableTypeMapper
@@ -94,11 +96,10 @@ export interface BuildOptions {
   resultName: string | undefined
 }
 
-export interface UpdateBuildOptions extends BuildOptions {
-}
+export interface UpdateBuildOptions extends BuildOptions {}
 
 export interface IResourceConstrutor {
-  new(
+  new (
     mappedIntrospection: MappedIntrospectionResult,
     resourceName: String,
     options?: ResourceOptions,
@@ -106,7 +107,6 @@ export interface IResourceConstrutor {
 }
 
 export type ResourceOptions = {
-
   // The pluralized name of the resource, this is needed if the pluralized name
   // of the resource not just ends with 's'.
   pluralizedName?: string
@@ -128,7 +128,7 @@ export type ResourceOptions = {
  */
 export type ProviderOptions = {
   resources: {
-    [name: string]: ResourceOptions,
+    [name: string]: ResourceOptions
   }
 }
 
@@ -144,8 +144,11 @@ export type QueryFromTypeParams = {
   settings?: GQLQueryProperties | boolean
 }
 
-export type FieldHandler =
-  (field: GQLType, fieldArguments: string | undefined, params: QueryFromTypeParams) => string
+export type FieldHandler = (
+  field: GQLType,
+  fieldArguments: string | undefined,
+  params: QueryFromTypeParams,
+) => string
 
 export interface FieldHandlers {
   [fieldName: string]: FieldHandler
@@ -157,9 +160,9 @@ export interface FieldHandlers {
 export interface GQLType {
   name: string
   kind: string
-  fields: GQLType[],
+  fields: GQLType[]
   inputFields: GQLType[] | null
-  args: any,
+  args: any
   type: GQLType
   ofType: GQLType
   defaultValue: any
