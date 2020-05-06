@@ -86,7 +86,7 @@ export default (
       const resourceClass = resourceOptions.resourceClass || BaseResource
       resource = new resourceClass(
         mappedIntrospection,
-        resourceName,
+        resourceOptions.backendResourceName || resourceName,
         resourceOptions,
         getResource,
       )

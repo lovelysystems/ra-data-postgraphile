@@ -121,6 +121,9 @@ export type ResourceOptions = {
   queryFieldHandlers?: FieldHandlers
   // The query settings for the GQL results
   querySettings: GQLQuerySettings
+  // Alternative resource name in the backend. If not given the name of the resource
+  // is taken.
+  backendResourceName: string
 }
 
 /**

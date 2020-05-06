@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Feature
+
+- Possibility to use an alternative backendResourceName in resource options
+
 ## 2020-02-17 / 0.7.1
 
 ### Fixes
