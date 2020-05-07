@@ -8,6 +8,9 @@ import {
 } from './types'
 import { fieldType } from './gqltype'
 
+function prepareArgString(fieldArguments: string | undefined): string {
+    return (fieldArguments && `(${fieldArguments})`) || ''
+}
 /**
  * The ObjectField can be used for list of objects and for pure object fields.
  *
@@ -27,7 +30,7 @@ export const ObjectField = (
   if (!nodeType) {
     return ''
   }
-  const argString = (fieldArguments && `(${fieldArguments})`) || ''
+  const argString = prepareArgString(fieldArguments)
   return `${field.name}${argString} { ${createQueryFromType({
     ...params,
     typeName: nodeType.name
@@ -51,8 +54,9 @@ export const SimpleFieldHandler = (
     return ''
   }
   if (settings === true) {
-    // render as a simple field
-    return `${field.name}`
+    // render as a simple field with arguments
+    const argString = prepareArgString(fieldArguments)
+    return `${field.name}${argString}`
   }
   return ObjectField(field, fieldArguments, params)
 }

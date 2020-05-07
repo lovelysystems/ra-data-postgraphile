@@ -39,6 +39,27 @@ describe('createQueryFromType', () => {
     )
   })
 
+  it('allow to define arguments for simple fields', () => {
+    expect(
+      createQueryFromType({
+        typeName: 'Content',
+        typeMap: {
+          Content: ContentType,
+          ContentBlock: ContentBlockType
+        },
+        handlers: SimpleFieldHandlers,
+        settings: {
+          '=de': {
+            arguments: 'lang:DE',
+            query: {
+              block: true
+            }
+          }
+        }
+      })
+    ).toStrictEqual(' de: block(lang:DE)')
+  })
+
   it('allows to define alias w/o arguments', () => {
     expect(
       createQueryFromType({
