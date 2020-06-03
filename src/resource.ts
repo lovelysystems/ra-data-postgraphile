@@ -1,4 +1,6 @@
 import get from 'lodash/get'
+import isPlainObject from 'lodash/isPlainObject'
+import omit from 'lodash/omit'
 import gql from 'graphql-tag'
 import {
   GET_LIST,
@@ -620,9 +622,14 @@ export class BaseResource implements IResource {
           }
         }
       }
+      let data = input[inputName]
+      if (isPlainObject(data)) {
+        // strip unneeded metadata from ObjectFields
+        data = omit(data, ['__typename'])
+      }
       return {
         ...current,
-        [inputName]: input[inputName],
+        [inputName]: data,
       }
     }, {})
   }

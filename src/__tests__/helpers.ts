@@ -777,6 +777,18 @@ export const TestTypes = [
         defaultValue: null,
         __typename: '__InputValue',
         description: null,
+        name: 'block',
+        type: {
+          __typename: '__Type',
+          kind: 'OBJECT',
+          name: 'ContentBlock',
+          ofType: null,
+        },
+      },
+      {
+        defaultValue: null,
+        __typename: '__InputValue',
+        description: null,
         name: 'pubTs',
         type: {
           __typename: '__Type',

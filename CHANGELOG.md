@@ -4,6 +4,7 @@
 
 ### Feature
 
+- Omit `__typename` property on object fields in input/update mutations
 - Support the use of arguments on simple fields.
 - Possibility to use an alternative backendResourceName in resource options
 
