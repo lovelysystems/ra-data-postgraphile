@@ -1,10 +1,8 @@
-import { ContentPatch, ContentType } from './helpers'
-import { TestTypes, TestQueries, TestMutations } from './helpers'
+import { TestTypes, TestQueries } from './helpers'
 import { createTypeMap } from '../utils'
 import { BaseResource } from '../resource'
 
 describe('BaseResource.recordToVariables', () => {
-
   const introspectionResults = {
     types: TestTypes,
     queries: TestQueries,
@@ -14,20 +12,16 @@ describe('BaseResource.recordToVariables', () => {
     types: createTypeMap(introspectionResults.types),
     queries: createTypeMap(introspectionResults.queries),
   }
-  
-  const resource = new BaseResource(
-    mappedIntrospection,
-    'Test',
-    {
-      options: {
-        resources: {
-          Test: {
-            pluralizedName: 'AllTests',
-          }
-        }
-      }
-    }
-  )
+
+  const resource = new BaseResource(mappedIntrospection, 'Test', {
+    options: {
+      resources: {
+        Test: {
+          pluralizedName: 'AllTests',
+        },
+      },
+    },
+  })
 
   it('maps simple types', () => {
     expect(
@@ -71,6 +65,28 @@ describe('BaseResource.recordToVariables', () => {
     })
   })
 
+  it('removes __typename on object fields', () => {
+    // reason: {x:1, y:0, __typename: 'Point'} would lead to error on Postgres Point columns:
+    // Field "__typename" is not defined by type PointInput.
+    expect(
+      resource.recordToVariables(
+        {
+          name: 'the block',
+          blocks: [],
+          block: {
+            type: 'text',
+            __typename: 'ContentBlock',
+          },
+        },
+        resource.introspection.inputType,
+      ),
+    ).toStrictEqual({
+      name: 'the block',
+      blocks: [],
+      block: { type: 'text' },
+    })
+  })
+
   it('allows to map properties based on its type', () => {
     // the resource.valueToQueryVariablesMap can provide transformations based
     // type names:
@@ -104,10 +120,7 @@ describe('BaseResource.recordToVariables', () => {
 
   it('can handle empty input', () => {
     expect(
-      resource.recordToVariables(
-        {}, 
-        resource.introspection.inputType,
-      )
+      resource.recordToVariables({}, resource.introspection.inputType),
     ).toStrictEqual({})
   })
 })
