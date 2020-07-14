@@ -1119,4 +1119,18 @@ export const TestQueries = [
     },
     isDeprecated: false
   },
+  {
+    name: "deleteCompoundByNodeId",
+    __typename: "__Field",
+    args: [],
+    deprecationReason: null,
+    description: "Deletes a single `Test`.",
+    type: {
+      ofType: null,
+      __typename: "__Type",
+      name: "DeleteTestPayload",
+      kind: "OBJECT"
+    },
+    isDeprecated: false
+  },
 ]

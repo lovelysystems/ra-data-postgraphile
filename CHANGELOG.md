@@ -8,6 +8,10 @@
 - Support the use of arguments on simple fields.
 - Possibility to use an alternative backendResourceName in resource options
 
+### Fixes
+
+- fixed the `deleteOne` fetch operation for resources with compound keys.
+
 ## 2020-02-17 / 0.7.1
 
 ### Fixes

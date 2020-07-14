@@ -407,6 +407,7 @@ export class BaseResource implements IResource {
   }
 
   deleteOne(params: DeleteParams) {
+    const inputId = this.hasCompoundKey ? 'nodeId' : this.primaryKeyFieldName
     return {
       query: `${this.deleteResourceName}(input: $input) {
         ${this.queryTypeName} {
@@ -417,7 +418,7 @@ export class BaseResource implements IResource {
       },
       variables: {
         input: {
-          id: this.idConverter(params.id),
+          [inputId]: this.idConverter(params.id),
         },
       },
       parseResponse: (response: Response) => {
@@ -566,7 +567,7 @@ export class BaseResource implements IResource {
           ? this.updateMany(params)
           : throwError()
       case DELETE:
-        return this.hasQuery(`delete${this.typeName}`)
+        return this.hasQuery(this.deleteResourceName)
           ? this.transformMutation(this.deleteOne(params))
           : throwError()
       default:

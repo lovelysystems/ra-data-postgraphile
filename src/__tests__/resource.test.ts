@@ -454,6 +454,28 @@ describe('resource', () => {
         },
       })
     })
+    it('DELETE provides a nodeId query for compound keys', () => {
+      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const result = provider(DELETE, 'Compound', {
+        id: 1,
+      })
+      expect(result.variables).toStrictEqual({
+        input: {
+          nodeId: 1,
+        },
+      })
+      expect(print(result.query))
+        .toStrictEqual(`mutation WithParameters($input: DeleteCompoundByNodeIdInput!) {
+  deleteCompoundByNodeId(input: $input) {
+    compound {
+      id
+      name
+      nodeId
+    }
+  }
+}
+`)
+  })
 
     it('DELETE_MANY is not implemented', () => {
       const provider = resourceFactory(introspectionResult, { options: OPTIONS })
