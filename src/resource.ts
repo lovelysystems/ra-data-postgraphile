@@ -201,10 +201,18 @@ export class BaseResource implements IResource {
 
     this.prepareForReactAdmin = this.hasCompoundKey
       ? (data: any): any => {
-          return {
-            ...data,
-            __rawId: data.id,
-            id: data.nodeId,
+          if (data) {
+            return {
+              ...data,
+              __rawId: data.id,
+              id: data.nodeId,
+            }
+          } else {
+            return {
+              __rawId: null,
+              id: null,
+              nodeId: null,
+            }
           }
         }
       : (data: any): any => {
