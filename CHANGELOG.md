@@ -11,6 +11,7 @@
 ### Fixes
 
 - fixed the `deleteOne` fetch operation for resources with compound keys.
+- fixed an issue in fetch operation in case data is null.
 
 ## 2020-02-17 / 0.7.1
 

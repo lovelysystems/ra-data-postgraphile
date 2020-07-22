@@ -517,6 +517,24 @@ describe('resource', () => {
       })
     })
 
+    it('returns empty resource once no data is null', () => {
+      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const result = provider(GET_ONE, 'Compound', {})
+      expect(
+        result.parseResponse({
+          data: {
+            compoundByNodeId: null,
+          },
+        }),
+      ).toStrictEqual({
+        data: {
+          __rawId: null,
+          id: null,
+          nodeId: null,
+        },
+      })
+    })
+
     it('GET_MANY provides a query', () => {
       const provider = resourceFactory(introspectionResult, { options: OPTIONS })
       const result = provider(GET_MANY, 'Compound', { ids: [1, 2] })
