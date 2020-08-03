@@ -17,6 +17,10 @@ const BooleanType: GQLType = {
   name: 'Boolean',
 }
 
+const DatetimeType: GQLType = {
+  name: 'Datetime',
+}
+
 const ENUMType: GQLType = {
   kind: 'ENUM',
   name: 'ContractType',
@@ -209,6 +213,63 @@ describe('filters', () => {
       })
       it('!in', () => {
         expect(mapFilterType(ENUMType, ['V', 'V2'], ['!in'])).toStrictEqual({ notIn: ['V', 'V2'] })
+      })
+    })
+
+    describe('type Datetime operation', () => {
+      it('default', () => {
+        expect(
+          mapFilterType(
+            DatetimeType,
+            new Date('05 October 2020 14:48 UTC'),
+            [],
+          ),
+        ).toStrictEqual({ equalTo: '2020-10-05T14:48:00.000Z' })
+      })
+      it('!=', () => {
+        expect(
+          mapFilterType(
+            DatetimeType,
+            new Date('05 October 2020 14:48 UTC'),
+            ['!='],
+          ),
+        ).toStrictEqual({ notEqualTo: '2020-10-05T14:48:00.000Z' })
+      })
+      it('<', () => {
+        expect(
+          mapFilterType(
+            DatetimeType,
+            new Date('05 October 2020 14:48 UTC'),
+            ['<'],
+          ),
+        ).toStrictEqual({ lessThan: '2020-10-05T14:48:00.000Z' })
+      })
+      it('<=', () => {
+        expect(
+          mapFilterType(
+            DatetimeType,
+            new Date('05 October 2020 14:48 UTC'),
+            ['<='],
+          ),
+        ).toStrictEqual({ lessThanOrEqualTo: '2020-10-05T14:48:00.000Z' })
+      })
+      it('>', () => {
+        expect(
+          mapFilterType(
+            DatetimeType,
+            new Date('05 October 2020 14:48 UTC'),
+            ['>'],
+          ),
+        ).toStrictEqual({ greaterThan: '2020-10-05T14:48:00.000Z' })
+      })
+      it('>=', () => {
+        expect(
+          mapFilterType(
+            DatetimeType,
+            new Date('05 October 2020 14:48 UTC'),
+            ['>='],
+          ),
+        ).toStrictEqual({ greaterThanOrEqualTo: '2020-10-05T14:48:00.000Z' })
       })
     })
 
