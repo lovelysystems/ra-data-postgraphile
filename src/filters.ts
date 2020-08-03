@@ -69,13 +69,22 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     '!in': ['notIn'],
     default: ['in'],
   },
+  Datetime: {
+    '=': ['equalTo', (value: Date) => value.toISOString()],
+    '!=': ['notEqualTo', (value: Date) => value.toISOString()],
+    '<': ['lessThan', (value: Date) => value.toISOString()],
+    '<=': ['lessThanOrEqualTo', (value: Date) => value.toISOString()],
+    '>': ['greaterThan', (value: Date) => value.toISOString()],
+    '>=': ['greaterThanOrEqualTo', (value: Date) => value.toISOString()],
+    default: ['equalTo', (value: Date) => value.toISOString()],
+  },
 } as TypeFilterMapping
 
 export const mapFilterType = (
   type: GQLType,
   value: any,
   operations: string[],
-  typeToFilter: TypeFilterMapping | undefined | null,
+  typeToFilter: TypeFilterMapping | undefined | null = undefined,
 ): any => {
   // use the provided filter mappings or the integrated
   const filter = typeToFilter || TYPE_TO_FILTER_MAPPINGS
