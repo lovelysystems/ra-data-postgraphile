@@ -1,3 +1,5 @@
+import { GQLType } from '../types'
+
 export const ContentType = {
   interfaces: [
     {
@@ -452,7 +454,7 @@ export const ContentBlockType = {
   ],
 }
 
-export const TestTypes = [
+export const TestTypes: Array<GQLType> = [
   {
     interfaces: [
       {
@@ -964,8 +966,7 @@ export const TestTypes = [
   },
 ]
 
-export const TestMutations = [
-]
+export const TestMutations = []
 
 export const TestQueries = [
   {
@@ -1001,46 +1002,46 @@ export const TestQueries = [
     deprecationReason: null,
   },
   {
-    name: "createTest",
-    __typename: "__Field",
+    name: 'createTest',
+    __typename: '__Field',
     args: [],
     deprecationReason: null,
-    description: "Creates a single `Test`.",
+    description: 'Creates a single `Test`.',
     type: {
       ofType: null,
-      __typename: "__Type",
-      name: "CreateTestPayload",
-      kind: "OBJECT"
+      __typename: '__Type',
+      name: 'CreateTestPayload',
+      kind: 'OBJECT',
     },
-    isDeprecated: false
+    isDeprecated: false,
   },
   {
-    name: "updateTest",
-    __typename: "__Field",
+    name: 'updateTest',
+    __typename: '__Field',
     args: [],
     deprecationReason: null,
-    description: "Creates a single `Test`.",
+    description: 'Creates a single `Test`.',
     type: {
       ofType: null,
-      __typename: "__Type",
-      name: "UpdateTestPayload",
-      kind: "OBJECT"
+      __typename: '__Type',
+      name: 'UpdateTestPayload',
+      kind: 'OBJECT',
     },
-    isDeprecated: false
+    isDeprecated: false,
   },
   {
-    name: "deleteTest",
-    __typename: "__Field",
+    name: 'deleteTest',
+    __typename: '__Field',
     args: [],
     deprecationReason: null,
-    description: "Creates a single `Test`.",
+    description: 'Creates a single `Test`.',
     type: {
       ofType: null,
-      __typename: "__Type",
-      name: "UpdateTestPayload",
-      kind: "OBJECT"
+      __typename: '__Type',
+      name: 'UpdateTestPayload',
+      kind: 'OBJECT',
     },
-    isDeprecated: false
+    isDeprecated: false,
   },
   {
     name: 'compound',
@@ -1092,45 +1093,45 @@ export const TestQueries = [
     deprecationReason: null,
   },
   {
-    name: "createCompound",
-    __typename: "__Field",
+    name: 'createCompound',
+    __typename: '__Field',
     args: [],
     deprecationReason: null,
-    description: "Creates a single `Test`.",
+    description: 'Creates a single `Test`.',
     type: {
       ofType: null,
-      __typename: "__Type",
-      name: "CreateTestPayload",
-      kind: "OBJECT"
+      __typename: '__Type',
+      name: 'CreateTestPayload',
+      kind: 'OBJECT',
     },
-    isDeprecated: false
+    isDeprecated: false,
   },
   {
-    name: "updateCompoundByNodeId",
-    __typename: "__Field",
+    name: 'updateCompoundByNodeId',
+    __typename: '__Field',
     args: [],
     deprecationReason: null,
-    description: "Creates a single `Test`.",
+    description: 'Creates a single `Test`.',
     type: {
       ofType: null,
-      __typename: "__Type",
-      name: "UpdateTestPayload",
-      kind: "OBJECT"
+      __typename: '__Type',
+      name: 'UpdateTestPayload',
+      kind: 'OBJECT',
     },
-    isDeprecated: false
+    isDeprecated: false,
   },
   {
-    name: "deleteCompoundByNodeId",
-    __typename: "__Field",
+    name: 'deleteCompoundByNodeId',
+    __typename: '__Field',
     args: [],
     deprecationReason: null,
-    description: "Deletes a single `Test`.",
+    description: 'Deletes a single `Test`.',
     type: {
       ofType: null,
-      __typename: "__Type",
-      name: "DeleteTestPayload",
-      kind: "OBJECT"
+      __typename: '__Type',
+      name: 'DeleteTestPayload',
+      kind: 'OBJECT',
     },
-    isDeprecated: false
+    isDeprecated: false,
   },
 ]

@@ -9,7 +9,7 @@ describe('createQueryFromType', () => {
         typeName: 'Content',
         typeMap: {
           Content: ContentType,
-          ContentBlock: ContentBlockType
+          ContentBlock: ContentBlockType,
         },
         handlers: SimpleFieldHandlers,
         settings: {
@@ -17,25 +17,25 @@ describe('createQueryFromType', () => {
           name: true,
           blocks: true,
           block: {
-            type: true
+            type: true,
           },
           '=de': {
             arguments: 'filter: {lang: {equalTo: DE}}',
             query: {
               blocks: {
-                type: true
-              }
-            }
+                type: true,
+              },
+            },
           },
           pubTs: true,
           deleted: true,
           id: true,
           ts: true,
-          author: true
-        }
-      })
+          author: true,
+        },
+      }),
     ).toStrictEqual(
-      ' de: blocks(filter: {lang: {equalTo: DE}}) {  type } author block {  type } blocks deleted id name nodeId pubTs ts'
+      ' de: blocks(filter: {lang: {equalTo: DE}}) {  type } author block {  type } blocks deleted id name nodeId pubTs ts',
     )
   })
 
@@ -45,18 +45,18 @@ describe('createQueryFromType', () => {
         typeName: 'Content',
         typeMap: {
           Content: ContentType,
-          ContentBlock: ContentBlockType
+          ContentBlock: ContentBlockType,
         },
         handlers: SimpleFieldHandlers,
         settings: {
           '=de': {
             arguments: 'lang:DE',
             query: {
-              block: true
-            }
-          }
-        }
-      })
+              block: true,
+            },
+          },
+        },
+      }),
     ).toStrictEqual(' de: block(lang:DE)')
   })
 
@@ -66,17 +66,17 @@ describe('createQueryFromType', () => {
         typeName: 'Content',
         typeMap: {
           Content: ContentType,
-          ContentBlock: ContentBlockType
+          ContentBlock: ContentBlockType,
         },
         handlers: SimpleFieldHandlers,
         settings: {
           '=effective': {
             query: {
-              pubTs: true
-            }
-          }
-        }
-      })
+              pubTs: true,
+            },
+          },
+        },
+      }),
     ).toStrictEqual(' effective: pubTs')
   })
 
@@ -84,21 +84,21 @@ describe('createQueryFromType', () => {
     const myFieldHandlers = merge({}, SimpleFieldHandlers, {
       nodeId: () => {
         return 'changedNameForNodeId'
-      }
+      },
     })
     expect(
       createQueryFromType({
         typeName: 'Content',
         typeMap: {
-          Content: ContentType
+          Content: ContentType,
         },
         handlers: myFieldHandlers,
         settings: {
           nodeId: true,
           name: true,
-          id: true
-        }
-      })
+          id: true,
+        },
+      }),
     ).toStrictEqual(' id name changedNameForNodeId')
   })
 })

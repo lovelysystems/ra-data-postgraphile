@@ -119,9 +119,9 @@ export class BaseResource implements IResource {
   public pluralizedQueryTypeName: string
   public pluralizedTypeName: string
 
-  public hasCompoundKey: boolean = false
-  public primaryKeyFieldName: string = 'id'
-  public primaryKeyTypeName: string = ''
+  public hasCompoundKey = false
+  public primaryKeyFieldName = 'id'
+  public primaryKeyTypeName = ''
   public prepareForReactAdmin: any
 
   public getOneResourceName: string
@@ -207,12 +207,11 @@ export class BaseResource implements IResource {
               __rawId: data.id,
               id: data.nodeId,
             }
-          } else {
-            return {
-              __rawId: null,
-              id: null,
-              nodeId: null,
-            }
+          }
+          return {
+            __rawId: null,
+            id: null,
+            nodeId: null,
           }
         }
       : (data: any): any => {
@@ -292,7 +291,7 @@ export class BaseResource implements IResource {
           }
       }}`,
       variables: {
-        ids: params.ids.filter(v => Boolean(v)).map(this.idConverter),
+        ids: params.ids.filter((v) => Boolean(v)).map(this.idConverter),
       },
       parseResponse: (response: Response) => {
         const { nodes } = response.data[this.pluralizedQueryTypeName]
@@ -351,8 +350,8 @@ export class BaseResource implements IResource {
     let resultName = get(options, 'resultName', '')
     let inputName = 'input'
     if (resultName) {
-      inputName = inputName + resultName
-      resultName = resultName + ':'
+      inputName += resultName
+      resultName += ':'
     }
     const inputId = this.hasCompoundKey ? 'nodeId' : this.primaryKeyFieldName
     return {
@@ -382,7 +381,7 @@ export class BaseResource implements IResource {
 
   updateMany(params: UpdateManyParams) {
     const { ids, data } = params
-    const inputs = ids.map(id => {
+    const inputs = ids.map((id) => {
       return {
         id: this.idConverter(id),
         clientMutationId: String(id),
@@ -392,9 +391,9 @@ export class BaseResource implements IResource {
     return {
       query: gql`mutation updateMany${this.typeName}(
       ${ids
-        .map(id => `$arg${id}: ${this.updateResourceInputName}!`)
+        .map((id) => `$arg${id}: ${this.updateResourceInputName}!`)
         .join(',')}) {
-          ${inputs.map(input => {
+          ${inputs.map((input) => {
             return `
            update${input.id}:${this.updateResourceName}(input: $arg${input.id}) {
              clientMutationId
@@ -407,7 +406,7 @@ export class BaseResource implements IResource {
         {},
       ),
       parseResponse: (response: Response) => ({
-        data: ids.map(id =>
+        data: ids.map((id) =>
           this.idConverter(response.data[`update${id}`].clientMutationId),
         ),
       }),

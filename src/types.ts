@@ -96,12 +96,12 @@ export interface BuildOptions {
   resultName: string | undefined
 }
 
-export interface UpdateBuildOptions extends BuildOptions {}
+export type UpdateBuildOptions = BuildOptions
 
 export interface IResourceConstrutor {
   new (
     mappedIntrospection: MappedIntrospectionResult,
-    resourceName: String,
+    resourceName: string,
     options?: ResourceOptions,
   ): IResource
 }
