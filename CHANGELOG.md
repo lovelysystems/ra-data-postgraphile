@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2020-10-09 / 0.8.0
 
 ### Feature
 
