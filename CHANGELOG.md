@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Development
+
+- Use Typescript 4.0.3
+- Adapted a lot of dependecies to align with lovely-ra
+
 ## 2020-10-09 / 0.8.0
 
 ### Feature
