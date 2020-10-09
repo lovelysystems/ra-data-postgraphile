@@ -91,7 +91,7 @@ describe('BaseResource.recordToVariables', () => {
     // the resource.valueToQueryVariablesMap can provide transformations based
     // type names:
     resource.valueToQueryVariablesMap = {
-      ContentBlock: (value) => {
+      ContentBlock: value => {
         return value.type === 'remove' ? null : value
       },
     }

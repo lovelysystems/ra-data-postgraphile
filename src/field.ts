@@ -75,6 +75,7 @@ export const createQueryFromType = (params: QueryFromTypeParams): string => {
 
   const typeFieldsMap: { [fieldName: string]: GQLType } = typeFields.reduce(
     (current: any | undefined, field: GQLType) => {
+      // eslint-disable-next-line no-param-reassign
       current[field.name] = field
       return current
     },
@@ -94,6 +95,7 @@ export const createQueryFromType = (params: QueryFromTypeParams): string => {
       aliasName = fieldName.substr(1)
       fieldArguments = get(setting, 'arguments')
       const query = get(setting, 'query')
+      // eslint-disable-next-line
       fieldName = Object.keys(query || {})[0]
       setting = query[fieldName]
     }

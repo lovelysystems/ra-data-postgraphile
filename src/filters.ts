@@ -106,7 +106,7 @@ export const mapFilterType = (
   }
   let operation = 'default'
   if (operations.length > 0) {
-    operation = operations[0]
+    ;[operation] = operations
   }
   const [operator, transformator = (v: any) => v] = filter[typeName][
     operation

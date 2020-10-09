@@ -410,7 +410,7 @@ describe('filters', () => {
     it('type map can be provided', () => {
       const MyTypeToFilterMap = {
         Int: {
-          special: ['isTheAnswer', (v) => 42],
+          special: ['isTheAnswer', () => 42],
         },
       }
       expect(

@@ -85,8 +85,8 @@ export default (
     let resource = resources[resourceName]
     if (!resource) {
       const resourceOptions = get(options, ['resources', resourceName])
-      const resourceClass = resourceOptions.resourceClass || BaseResource
-      resource = new resourceClass(
+      const ResourceClass = resourceOptions.resourceClass || BaseResource
+      resource = new ResourceClass(
         mappedIntrospection,
         resourceOptions.backendResourceName || resourceName,
         resourceOptions,
@@ -216,6 +216,7 @@ export class BaseResource implements IResource {
         }
       : (data: any): any => {
           if (this.primaryKeyFieldName !== 'id') {
+            // eslint-disable-next-line no-param-reassign
             data.id = data[this.primaryKeyFieldName]
           }
           return data
@@ -245,6 +246,7 @@ export class BaseResource implements IResource {
       ? (data: any) => ({
           ...data,
           nodeId: data.id,
+          // eslint-disable-next-line no-underscore-dangle
           id: data.__rawId,
         })
       : (data: any) => {
@@ -291,7 +293,7 @@ export class BaseResource implements IResource {
           }
       }}`,
       variables: {
-        ids: params.ids.filter((v) => Boolean(v)).map(this.idConverter),
+        ids: params.ids.filter(v => Boolean(v)).map(this.idConverter),
       },
       parseResponse: (response: Response) => {
         const { nodes } = response.data[this.pluralizedQueryTypeName]
@@ -381,7 +383,7 @@ export class BaseResource implements IResource {
 
   updateMany(params: UpdateManyParams) {
     const { ids, data } = params
-    const inputs = ids.map((id) => {
+    const inputs = ids.map(id => {
       return {
         id: this.idConverter(id),
         clientMutationId: String(id),
@@ -391,9 +393,9 @@ export class BaseResource implements IResource {
     return {
       query: gql`mutation updateMany${this.typeName}(
       ${ids
-        .map((id) => `$arg${id}: ${this.updateResourceInputName}!`)
+        .map(id => `$arg${id}: ${this.updateResourceInputName}!`)
         .join(',')}) {
-          ${inputs.map((input) => {
+          ${inputs.map(input => {
             return `
            update${input.id}:${this.updateResourceName}(input: $arg${input.id}) {
              clientMutationId
@@ -406,7 +408,7 @@ export class BaseResource implements IResource {
         {},
       ),
       parseResponse: (response: Response) => ({
-        data: ids.map((id) =>
+        data: ids.map(id =>
           this.idConverter(response.data[`update${id}`].clientMutationId),
         ),
       }),
@@ -580,6 +582,7 @@ export class BaseResource implements IResource {
       default:
         throwError()
     }
+    return undefined
   }
 
   /**

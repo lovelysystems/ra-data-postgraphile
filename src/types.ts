@@ -1,9 +1,4 @@
 import {
-  GET_LIST,
-  GET_ONE,
-  CREATE,
-  UPDATE,
-  DELETE,
   GetOneParams,
   GetManyParams,
   GetManyReferenceParams,
