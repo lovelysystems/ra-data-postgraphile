@@ -30,17 +30,17 @@ async function createModulePackages({ from, to }) {
     .map(path.dirname)
 
   await Promise.all(
-    directoryPackages.map(async directoryPackage => {
+    directoryPackages.map(async (directoryPackage) => {
       const packageJson = {
         sideEffects: false,
         module: path.join('../esm', directoryPackage, 'index.js'),
-        typings: './index.d.ts'
+        typings: './index.d.ts',
       }
       const packageJsonPath = path.join(to, directoryPackage, 'package.json')
 
       const [typingsExist] = await Promise.all([
         fse.exists(path.join(to, directoryPackage, 'index.d.ts')),
-        fse.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
+        fse.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2)),
       ])
 
       if (!typingsExist) {
@@ -48,7 +48,7 @@ async function createModulePackages({ from, to }) {
       }
 
       return packageJsonPath
-    })
+    }),
   )
 }
 
@@ -59,8 +59,8 @@ async function typescriptCopy({ from, to }) {
   }
 
   const files = glob.sync('**/*.d.ts', { cwd: from })
-  const cmds = files.map(file =>
-    fse.copy(path.resolve(from, file), path.resolve(to, file))
+  const cmds = files.map((file) =>
+    fse.copy(path.resolve(from, file), path.resolve(to, file)),
   )
   return Promise.all(cmds)
 }
@@ -68,7 +68,7 @@ async function typescriptCopy({ from, to }) {
 async function createPackageFile() {
   const packageData = await fse.readFile(
     path.resolve(packagePath, './package.json'),
-    'utf8'
+    'utf8',
   )
   const {
     nyc,
@@ -82,14 +82,14 @@ async function createPackageFile() {
     private: false,
     main: './index.js',
     module: './esm/index.js',
-    typings: './index.d.ts'
+    typings: './index.d.ts',
   }
   const targetPath = path.resolve(buildPath, './package.json')
 
   await fse.writeFile(
     targetPath,
     JSON.stringify(newPackageData, null, 2),
-    'utf8'
+    'utf8',
   )
   console.log(`Created package.json in ${targetPath}`)
 
@@ -113,8 +113,8 @@ async function addLicense(packageData) {
       './index.js',
       './esm/index.js',
       './umd/material-ui.development.js',
-      './umd/material-ui.production.min.js'
-    ].map(async file => {
+      './umd/material-ui.production.min.js',
+    ].map(async (file) => {
       try {
         await prepend(path.resolve(buildPath, file), license)
       } catch (err) {
@@ -124,7 +124,7 @@ async function addLicense(packageData) {
           throw err
         }
       }
-    })
+    }),
   )
 }
 

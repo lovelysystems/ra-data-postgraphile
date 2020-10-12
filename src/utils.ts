@@ -1,10 +1,4 @@
-import get from 'lodash/get'
-import {
-  CAMEL_REGEX,
-  QueryVariableTypeMappers,
-  GQLType,
-  GQLTypeMap,
-} from './types'
+import { CAMEL_REGEX, GQLType, GQLTypeMap } from './types'
 
 export const capitalize = (str: string): string =>
   str[0].toUpperCase() + str.slice(1)
@@ -22,10 +16,6 @@ export const fieldIsObjectOrListOfObject = (field: GQLType): boolean =>
   field.type.kind === 'OBJECT' ||
   (field.type.ofType &&
     (field.type.ofType.kind === 'OBJECT' || field.type.ofType.kind === 'LIST'))
-
-type GQLVariables = {
-  [key: string]: any
-}
 
 export const createTypeMap = (types: Array<GQLType>): GQLTypeMap => {
   return types.reduce((map: any, next: any) => {

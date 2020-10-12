@@ -4,12 +4,12 @@ import {
   GQLQueryProperties,
   FieldHandler,
   FieldHandlers,
-  QueryFromTypeParams
+  QueryFromTypeParams,
 } from './types'
 import { fieldType } from './gqltype'
 
 function prepareArgString(fieldArguments: string | undefined): string {
-    return (fieldArguments && `(${fieldArguments})`) || ''
+  return (fieldArguments && `(${fieldArguments})`) || ''
 }
 /**
  * The ObjectField can be used for list of objects and for pure object fields.
@@ -23,7 +23,7 @@ function prepareArgString(fieldArguments: string | undefined): string {
 export const ObjectField = (
   field: GQLType,
   fieldArguments: string | undefined,
-  params: QueryFromTypeParams
+  params: QueryFromTypeParams,
 ) => {
   const { typeMap } = params
   const nodeType = fieldType(field, typeMap)
@@ -33,7 +33,7 @@ export const ObjectField = (
   const argString = prepareArgString(fieldArguments)
   return `${field.name}${argString} { ${createQueryFromType({
     ...params,
-    typeName: nodeType.name
+    typeName: nodeType.name,
   })} }`
 }
 
@@ -46,7 +46,7 @@ export const ObjectField = (
 export const SimpleFieldHandler = (
   field: GQLType,
   fieldArguments: string | undefined,
-  params: QueryFromTypeParams
+  params: QueryFromTypeParams,
 ): string => {
   const { settings } = params
   if (!settings) {
@@ -61,11 +61,9 @@ export const SimpleFieldHandler = (
   return ObjectField(field, fieldArguments, params)
 }
 
-
 export const SimpleFieldHandlers = {
-  __default: SimpleFieldHandler
+  __default: SimpleFieldHandler,
 } as FieldHandlers
-
 
 export const createQueryFromType = (params: QueryFromTypeParams): string => {
   const { typeName, typeMap, handlers, settings } = params
@@ -73,43 +71,45 @@ export const createQueryFromType = (params: QueryFromTypeParams): string => {
   if (!typeFields) {
     return ''
   }
-  let defaultHandler: FieldHandler | undefined = get(handlers, '__default')
+  const defaultHandler: FieldHandler | undefined = get(handlers, '__default')
 
   const typeFieldsMap: { [fieldName: string]: GQLType } = typeFields.reduce(
     (current: any | undefined, field: GQLType) => {
+      // eslint-disable-next-line no-param-reassign
       current[field.name] = field
       return current
     },
-    {}
+    {},
   )
   const sortedKeys: string[] = Object.keys(settings || {}).sort()
   return sortedKeys.reduce((current: string, fieldName: string) => {
     let setting: GQLQueryProperties | boolean | undefined = get(
       settings,
-      fieldName
+      fieldName,
     )
 
-    let aliasName: string = ''
+    let aliasName = ''
     let fieldArguments: string | undefined
     if (fieldName.startsWith('=')) {
       // fields starting with = are treated as alias fields for query with possible arguments
       aliasName = fieldName.substr(1)
       fieldArguments = get(setting, 'arguments')
       const query = get(setting, 'query')
+      // eslint-disable-next-line
       fieldName = Object.keys(query || {})[0]
       setting = query[fieldName]
     }
     // check if field is available in gql schema
     if (fieldName in typeFieldsMap) {
-      let handler: FieldHandler | undefined = get(
+      const handler: FieldHandler | undefined = get(
         handlers,
         fieldName,
-        defaultHandler
+        defaultHandler,
       )
       if (handler) {
         const fieldQuery = handler(typeFieldsMap[fieldName], fieldArguments, {
           ...params,
-          settings: setting
+          settings: setting,
         })
         if (fieldQuery && fieldQuery !== '') {
           const alias = (aliasName && `${aliasName}: `) || ''

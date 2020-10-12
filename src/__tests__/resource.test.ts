@@ -16,7 +16,6 @@ import { TestTypes, TestQueries } from './helpers'
 
 import resourceFactory from '../resource'
 
-
 describe('resource', () => {
   const introspectionResult = {
     types: TestTypes,
@@ -44,7 +43,7 @@ describe('resource', () => {
           [CREATE]: TestProperties,
           [UPDATE]: TestProperties,
           [DELETE]: TestProperties,
-        }
+        },
       },
       Compound: {
         querySettings: {
@@ -53,18 +52,22 @@ describe('resource', () => {
           [CREATE]: CompoundProperties,
           [UPDATE]: CompoundProperties,
           [DELETE]: CompoundProperties,
-        }
-      }
-    }
+        },
+      },
+    },
   }
 
   it('provides the query builder', () => {
-    expect(resourceFactory(introspectionResult, { options: OPTIONS })).not.toBeNull()
+    expect(
+      resourceFactory(introspectionResult, { options: OPTIONS }),
+    ).not.toBeNull()
   })
 
   describe('with single column key', () => {
     it('GET_ONE provides a query', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(GET_ONE, 'Test', { id: 1 })
       expect(result.variables).toStrictEqual({ id: 1 })
       expect(print(result.query)).toStrictEqual(`query test($id: Int!) {
@@ -91,7 +94,9 @@ describe('resource', () => {
     })
 
     it('GET_MANY provides a query', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(GET_MANY, 'Test', { ids: [1, 2] })
       expect(result.variables).toStrictEqual({ ids: [1, 2] })
       expect(print(result.query)).toStrictEqual(`query tests($ids: [Int!]) {
@@ -136,7 +141,9 @@ describe('resource', () => {
     })
 
     it('CREATE provides a mutation', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(CREATE, 'Test', { data: { name: 'the name' } })
       expect(result.variables).toStrictEqual({
         input: {
@@ -179,7 +186,9 @@ describe('resource', () => {
     })
 
     it('UPDATE provides a mutation', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(UPDATE, 'Test', {
         id: 1,
         data: { name: 'the name' },
@@ -225,7 +234,9 @@ describe('resource', () => {
     })
 
     it('UPDATE_MANY provides a mutation', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(UPDATE_MANY, 'Test', {
         ids: [1, 2],
         data: {
@@ -275,7 +286,9 @@ describe('resource', () => {
     })
 
     it('GET_LIST provides a query', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(GET_LIST, 'Test', {
         pagination: { page: 1, perPage: 10 },
       })
@@ -335,7 +348,9 @@ describe('resource', () => {
     })
 
     it('GET_LIST provides a query with sorting', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(GET_LIST, 'Test', {
         sort: { field: 'name', order: 'DESC' },
         pagination: { page: 1, perPage: 10 },
@@ -349,7 +364,9 @@ describe('resource', () => {
     })
 
     it('GET_MANY_REFERENCE provides a query', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(GET_MANY_REFERENCE, 'Test', {
         target: 'id',
         id: 1,
@@ -420,9 +437,11 @@ describe('resource', () => {
     })
 
     it('DELETE', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(DELETE, 'Test', { id: 1 })
-      expect(result.variables).toStrictEqual({input: { id: 1 }})
+      expect(result.variables).toStrictEqual({ input: { id: 1 } })
       expect(print(result.query))
         .toStrictEqual(`mutation WithParameters($input: DeleteTestInput!) {
   deleteTest(input: $input) {
@@ -455,7 +474,9 @@ describe('resource', () => {
       })
     })
     it('DELETE provides a nodeId query for compound keys', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(DELETE, 'Compound', {
         id: 1,
       })
@@ -475,11 +496,13 @@ describe('resource', () => {
   }
 }
 `)
-  })
+    })
 
     it('DELETE_MANY is not implemented', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
-      expect(() => provider(DELETE_MANY, 'Test', { id: 1 })).toThrowError(
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
+      expect(() => provider(DELETE_MANY, 'Test', { id: 1 })).toThrow(
         'DELETE_MANY is not implemented for type "Test"',
       )
     })
@@ -487,7 +510,9 @@ describe('resource', () => {
 
   describe('with compound key', () => {
     it('provides a nodeId query for compound keys', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(GET_ONE, 'Compound', { id: 1 })
       expect(result.variables).toStrictEqual({ id: 1 })
       expect(print(result.query))
@@ -518,7 +543,9 @@ describe('resource', () => {
     })
 
     it('returns empty resource once no data is null', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(GET_ONE, 'Compound', {})
       expect(
         result.parseResponse({
@@ -536,7 +563,9 @@ describe('resource', () => {
     })
 
     it('GET_MANY provides a query', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(GET_MANY, 'Compound', { ids: [1, 2] })
       expect(result.variables).toStrictEqual({ ids: [1, 2] })
       expect(print(result.query)).toStrictEqual(`query compounds($ids: [ID!]) {
@@ -587,7 +616,9 @@ describe('resource', () => {
     })
 
     it('CREATE provides a mutation', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(CREATE, 'Compound', {
         data: { name: 'the name' },
       })
@@ -632,7 +663,9 @@ describe('resource', () => {
     })
 
     it('UPDATE provides a mutation', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(UPDATE, 'Compound', {
         id: 'nodeId:1',
         data: {
@@ -684,7 +717,9 @@ describe('resource', () => {
     })
 
     it('UPDATE_MANY provides a mutation', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(UPDATE_MANY, 'Compound', {
         ids: ['nodeId1', 'nodeId2'],
         data: {
@@ -734,7 +769,9 @@ describe('resource', () => {
     })
 
     it('GET_LIST provides a query', () => {
-      const provider = resourceFactory(introspectionResult, { options: OPTIONS })
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
       const result = provider(GET_LIST, 'Compound', {
         pagination: { page: 1, perPage: 10 },
       })
@@ -805,7 +842,7 @@ describe('resource', () => {
         },
         { options: OPTIONS },
       )
-      expect(() => provider(GET_ONE, 'Test', { id: 1 })).toThrowError(
+      expect(() => provider(GET_ONE, 'Test', { id: 1 })).toThrow(
         'Type "Test" not found in introspection',
       )
     })
@@ -818,7 +855,7 @@ describe('resource', () => {
         },
         { options: OPTIONS },
       )
-      expect(() => provider(GET_ONE, 'Test', { id: 1 })).toThrowError(
+      expect(() => provider(GET_ONE, 'Test', { id: 1 })).toThrow(
         'Query "test" for type "Test" not found in introspection',
       )
     })
@@ -831,7 +868,7 @@ describe('resource', () => {
         },
         { options: OPTIONS },
       )
-      expect(() => provider(GET_ONE, 'Test', { id: 1 })).toThrowError(
+      expect(() => provider(GET_ONE, 'Test', { id: 1 })).toThrow(
         'Query "test" for type "Test" has no args',
       )
     })

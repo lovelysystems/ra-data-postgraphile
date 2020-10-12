@@ -1,9 +1,4 @@
 import {
-  GET_LIST,
-  GET_ONE,
-  CREATE,
-  UPDATE,
-  DELETE,
   GetOneParams,
   GetManyParams,
   GetManyReferenceParams,
@@ -96,12 +91,12 @@ export interface BuildOptions {
   resultName: string | undefined
 }
 
-export interface UpdateBuildOptions extends BuildOptions {}
+export type UpdateBuildOptions = BuildOptions
 
 export interface IResourceConstrutor {
   new (
     mappedIntrospection: MappedIntrospectionResult,
-    resourceName: String,
+    resourceName: string,
     options?: ResourceOptions,
   ): IResource
 }

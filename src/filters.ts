@@ -10,7 +10,7 @@ export const TYPE_TO_FILTER_MAPPINGS = {
   String: {
     '=': ['equalTo'],
     '!=': ['notEqualTo'],
-    'null': ['isNull', () => true],
+    null: ['isNull', () => true],
     '!null': ['isNull', () => false],
     likeInsensitive: ['likeInsensitive', (value: string) => `%${value}%`],
     default: ['likeInsensitive', (value: string) => `%${value}%`],
@@ -27,45 +27,48 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     '<=': ['lessThanOrEqualTo', Number],
     '>': ['greaterThan', Number],
     '>=': ['greaterThanOrEqualTo', Number],
-    'null': ['isNull', () => true],
+    null: ['isNull', () => true],
     '!null': ['isNull', () => false],
     default: ['equalTo', Number],
   },
   IntArray: {
     '=': ['in', (value: string[]) => value.map(Number)],
-    "!=": ['notIn', (value: string[]) => value.map(Number)],
-    'in': ['in', (value: string[]) => value.map(Number)],
-    "!in": ['notIn', (value: string[]) => value.map(Number)],
+    '!=': ['notIn', (value: string[]) => value.map(Number)],
+    in: ['in', (value: string[]) => value.map(Number)],
+    '!in': ['notIn', (value: string[]) => value.map(Number)],
     default: ['in', (value: string[]) => value.map(Number)],
   },
   IntList: {
     '=': ['anyEqualTo', Number],
-    "!=": ['anyNotEqualTo', Number],
-    "anyEqualTo": ['anyEqualTo', Number],
-    "anyNotEqualTo": ['anyNotEqualTo', Number],
+    '!=': ['anyNotEqualTo', Number],
+    anyEqualTo: ['anyEqualTo', Number],
+    anyNotEqualTo: ['anyNotEqualTo', Number],
     default: ['anyEqualTo', Number],
   },
   IntListArray: {
     '=': ['equalTo', (value: string[]) => value.map(Number)],
-    "!=": ['notEqualTo', (value: string[]) => value.map(Number)],
-    "overlaps": ['overlaps', (value: string[]) => value.map(Number)],
-    "contains": ['contains', (value: string[]) => value.map(Number)],
-    "containedBy": ['containedBy', (value: string[]) => value.map(Number)],
-    "distinctFrom": ['distinctFrom', (value: string[]) => value.map(Number)],
-    "notDistinctFrom": ['notDistinctFrom', (value: string[]) => value.map(Number)],
+    '!=': ['notEqualTo', (value: string[]) => value.map(Number)],
+    overlaps: ['overlaps', (value: string[]) => value.map(Number)],
+    contains: ['contains', (value: string[]) => value.map(Number)],
+    containedBy: ['containedBy', (value: string[]) => value.map(Number)],
+    distinctFrom: ['distinctFrom', (value: string[]) => value.map(Number)],
+    notDistinctFrom: [
+      'notDistinctFrom',
+      (value: string[]) => value.map(Number),
+    ],
     default: ['overlaps', (value: string[]) => value.map(Number)],
   },
   ENUM: {
     '=': ['equalTo'],
     '!=': ['notEqualTo'],
-    'null': ['isNull', () => true],
+    null: ['isNull', () => true],
     '!null': ['isNull', () => false],
     default: ['equalTo'],
   },
   ENUMArray: {
-    "=": ['in'],
+    '=': ['in'],
     '!=': ['notIn'],
-    'in': ['in'],
+    in: ['in'],
     '!in': ['notIn'],
     default: ['in'],
   },
@@ -97,25 +100,31 @@ export const mapFilterType = (
     typeName = Array.isArray(value) ? `${type.kind}Array` : type.kind
   }
   if (!filter[typeName]) {
-    throw new Error(`Filter for type "${type.name}" or kind "${type.kind}" not implemented.`)
+    throw new Error(
+      `Filter for type "${type.name}" or kind "${type.kind}" not implemented.`,
+    )
   }
   let operation = 'default'
   if (operations.length > 0) {
-    operation = operations[0]
+    ;[operation] = operations
   }
-  const [operator, transformator = (v: any) => v] = filter[typeName][operation] || [null]
+  const [operator, transformator = (v: any) => v] = filter[typeName][
+    operation
+  ] || [null]
   if (!operator) {
-    throw new Error(`Operation "${operation}" for type "${typeName}" not implemented.`)
+    throw new Error(
+      `Operation "${operation}" for type "${typeName}" not implemented.`,
+    )
   }
   return {
-    [operator]: transformator(value)
+    [operator]: transformator(value),
   }
 }
 
 export const createFilter = (
   fields: FilterFields,
   type: GQLType,
-  typeToFilter: TypeFilterMapping | null | undefined
+  typeToFilter: TypeFilterMapping | null | undefined,
 ): any => {
   if (!fields) {
     return undefined

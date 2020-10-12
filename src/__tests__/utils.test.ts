@@ -6,7 +6,6 @@ import {
   fieldIsObjectOrListOfObject,
   createTypeMap,
 } from '../utils'
-import { ContentPatch, ContentType, ContentBlockType } from './helpers'
 
 describe('utils', () => {
   describe('string transformations', () => {
@@ -93,5 +92,4 @@ describe('utils', () => {
       })
     })
   })
-
 })

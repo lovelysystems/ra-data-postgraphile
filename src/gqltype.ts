@@ -3,10 +3,8 @@ import { GQLType, GQLTypeMap } from './types'
 export const isListType = (field: GQLType): boolean =>
   field.kind === 'LIST' || (field.ofType && field.ofType.kind === 'LIST')
 
-
 export const isObjectType = (field: GQLType): boolean =>
   field.kind === 'OBJECT' || (field.ofType && field.ofType.kind === 'OBJECT')
-
 
 export const hasKind = (kind: string, field: GQLType): boolean => {
   if (!field || !field.type) {
@@ -18,7 +16,6 @@ export const hasKind = (kind: string, field: GQLType): boolean => {
   }
   return !!current
 }
-
 
 /**
  * Checks if the field is an object or a list of objects
@@ -55,7 +52,10 @@ export const fieldTypeName = (field: GQLType): string | null => {
 /**
  * Provide the GQLType for the typeName of a type.
  */
-export const fieldType = (field: GQLType, typeMap: GQLTypeMap): GQLType | null => {
+export const fieldType = (
+  field: GQLType,
+  typeMap: GQLTypeMap,
+): GQLType | null => {
   const typeName = fieldTypeName(field)
   if (!typeName) {
     return null

@@ -15,7 +15,13 @@ export type FactorySettings = {
   options: any
 }
 
-export const factory = ({ uri, link, cache, options, ...rest }: FactorySettings) => {
+export const factory = ({
+  uri,
+  link,
+  cache,
+  options,
+  ...rest
+}: FactorySettings) => {
   const defaultCache = () => {
     return new InMemoryCache({
       dataIdFromObject: (object: any) => object.nodeId || null,
@@ -26,13 +32,15 @@ export const factory = ({ uri, link, cache, options, ...rest }: FactorySettings)
       onError(({ graphQLErrors, networkError }) => {
         if (graphQLErrors)
           graphQLErrors.forEach(({ message, locations, path }) =>
+            // eslint-disable-next-line no-console
             console.log(
               `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
             ),
-          );
-        if (networkError) console.log(`[Network error]: ${networkError}`);
+          )
+        // eslint-disable-next-line no-console
+        if (networkError) console.log(`[Network error]: ${networkError}`)
       }),
-      new HttpLink({ uri: uri })
+      new HttpLink({ uri }),
     ])
   }
   const client = new ApolloClient({

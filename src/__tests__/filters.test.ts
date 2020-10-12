@@ -55,34 +55,52 @@ describe('filters', () => {
 
     describe('type String operation', () => {
       it('default', () => {
-        expect(mapFilterType(StringType, 'str', [])).toStrictEqual({ likeInsensitive: '%str%' })
+        expect(mapFilterType(StringType, 'str', [])).toStrictEqual({
+          likeInsensitive: '%str%',
+        })
       })
       it('=', () => {
-        expect(mapFilterType(StringType, 'str', ['='])).toStrictEqual({ equalTo: 'str' })
+        expect(mapFilterType(StringType, 'str', ['='])).toStrictEqual({
+          equalTo: 'str',
+        })
       })
       it('!=', () => {
-        expect(mapFilterType(StringType, 'str', ['!='])).toStrictEqual({ notEqualTo: 'str' })
+        expect(mapFilterType(StringType, 'str', ['!='])).toStrictEqual({
+          notEqualTo: 'str',
+        })
       })
       it('likeInsensitive', () => {
-        expect(mapFilterType(StringType, 'str', ['likeInsensitive'])).toStrictEqual({ likeInsensitive: '%str%' })
+        expect(
+          mapFilterType(StringType, 'str', ['likeInsensitive']),
+        ).toStrictEqual({ likeInsensitive: '%str%' })
       })
       it('null', () => {
-        expect(mapFilterType(StringType, 'str', ['null'])).toStrictEqual({ isNull: true })
+        expect(mapFilterType(StringType, 'str', ['null'])).toStrictEqual({
+          isNull: true,
+        })
       })
       it('!null', () => {
-        expect(mapFilterType(StringType, 'str', ['!null'])).toStrictEqual({ isNull: false })
+        expect(mapFilterType(StringType, 'str', ['!null'])).toStrictEqual({
+          isNull: false,
+        })
       })
     })
 
     describe('type Boolean operation', () => {
       it('default', () => {
-        expect(mapFilterType(BooleanType, false, [])).toStrictEqual({ equalTo: false })
+        expect(mapFilterType(BooleanType, false, [])).toStrictEqual({
+          equalTo: false,
+        })
       })
       it('=', () => {
-        expect(mapFilterType(BooleanType, true, ['='])).toStrictEqual({ equalTo: true })
+        expect(mapFilterType(BooleanType, true, ['='])).toStrictEqual({
+          equalTo: true,
+        })
       })
       it('!=', () => {
-        expect(mapFilterType(BooleanType, true, ['!='])).toStrictEqual({ notEqualTo: true })
+        expect(mapFilterType(BooleanType, true, ['!='])).toStrictEqual({
+          notEqualTo: true,
+        })
       })
     })
 
@@ -94,25 +112,37 @@ describe('filters', () => {
         expect(mapFilterType(IntType, 2, ['='])).toStrictEqual({ equalTo: 2 })
       })
       it('!=', () => {
-        expect(mapFilterType(IntType, 2, ['!='])).toStrictEqual({ notEqualTo: 2 })
+        expect(mapFilterType(IntType, 2, ['!='])).toStrictEqual({
+          notEqualTo: 2,
+        })
       })
       it('<', () => {
         expect(mapFilterType(IntType, 2, ['<'])).toStrictEqual({ lessThan: 2 })
       })
       it('<=', () => {
-        expect(mapFilterType(IntType, 2, ['<='])).toStrictEqual({ lessThanOrEqualTo: 2 })
+        expect(mapFilterType(IntType, 2, ['<='])).toStrictEqual({
+          lessThanOrEqualTo: 2,
+        })
       })
       it('>', () => {
-        expect(mapFilterType(IntType, 2, ['>'])).toStrictEqual({ greaterThan: 2 })
+        expect(mapFilterType(IntType, 2, ['>'])).toStrictEqual({
+          greaterThan: 2,
+        })
       })
       it('>=', () => {
-        expect(mapFilterType(IntType, 2, ['>='])).toStrictEqual({ greaterThanOrEqualTo: 2 })
+        expect(mapFilterType(IntType, 2, ['>='])).toStrictEqual({
+          greaterThanOrEqualTo: 2,
+        })
       })
       it('null', () => {
-        expect(mapFilterType(IntType, true, ['null'])).toStrictEqual({ isNull: true })
+        expect(mapFilterType(IntType, true, ['null'])).toStrictEqual({
+          isNull: true,
+        })
       })
       it('!null', () => {
-        expect(mapFilterType(IntType, true, ['!null'])).toStrictEqual({ isNull: false })
+        expect(mapFilterType(IntType, true, ['!null'])).toStrictEqual({
+          isNull: false,
+        })
       })
     })
 
@@ -121,62 +151,95 @@ describe('filters', () => {
         expect(mapFilterType(IntType, [2, 3], [])).toStrictEqual({ in: [2, 3] })
       })
       it('in', () => {
-        expect(mapFilterType(IntType, [2, 3], ['in'])).toStrictEqual({ in: [2, 3] })
+        expect(mapFilterType(IntType, [2, 3], ['in'])).toStrictEqual({
+          in: [2, 3],
+        })
       })
       it('!in', () => {
-        expect(mapFilterType(IntType, [2, 3], ['!in'])).toStrictEqual({ notIn: [2, 3] })
+        expect(mapFilterType(IntType, [2, 3], ['!in'])).toStrictEqual({
+          notIn: [2, 3],
+        })
       })
       it('=', () => {
-        expect(mapFilterType(IntType, [2, 3], ['='])).toStrictEqual({ in: [2, 3] })
+        expect(mapFilterType(IntType, [2, 3], ['='])).toStrictEqual({
+          in: [2, 3],
+        })
       })
       it('!=', () => {
-        expect(mapFilterType(IntType, [2, 3], ['!='])).toStrictEqual({ notIn: [2, 3] })
+        expect(mapFilterType(IntType, [2, 3], ['!='])).toStrictEqual({
+          notIn: [2, 3],
+        })
       })
     })
 
     describe('type IntList operation', () => {
       it('default', () => {
-        expect(mapFilterType(IntListType, 2, [])).toStrictEqual({ anyEqualTo: 2 })
+        expect(mapFilterType(IntListType, 2, [])).toStrictEqual({
+          anyEqualTo: 2,
+        })
       })
       it('=', () => {
-        expect(mapFilterType(IntListType, '2', ['='])).toStrictEqual({ anyEqualTo: 2 })
+        expect(mapFilterType(IntListType, '2', ['='])).toStrictEqual({
+          anyEqualTo: 2,
+        })
       })
       it('!=', () => {
-        expect(mapFilterType(IntListType, 2, ['!='])).toStrictEqual({ anyNotEqualTo: 2 })
+        expect(mapFilterType(IntListType, 2, ['!='])).toStrictEqual({
+          anyNotEqualTo: 2,
+        })
       })
       it('anyEqualTo', () => {
-        expect(mapFilterType(IntListType, '2', ['anyEqualTo'])).toStrictEqual({ anyEqualTo: 2 })
+        expect(mapFilterType(IntListType, '2', ['anyEqualTo'])).toStrictEqual({
+          anyEqualTo: 2,
+        })
       })
       it('anyNotEqualTo', () => {
-        expect(mapFilterType(IntListType, 2, ['anyNotEqualTo'])).toStrictEqual({ anyNotEqualTo: 2 })
+        expect(mapFilterType(IntListType, 2, ['anyNotEqualTo'])).toStrictEqual({
+          anyNotEqualTo: 2,
+        })
       })
     })
 
-
     describe('type IntListArray operation', () => {
       it('default', () => {
-        expect(mapFilterType(IntListType, [2, 3], [])).toStrictEqual({ overlaps: [2, 3] })
+        expect(mapFilterType(IntListType, [2, 3], [])).toStrictEqual({
+          overlaps: [2, 3],
+        })
       })
       it('=', () => {
-        expect(mapFilterType(IntListType, [2, 3], ['='])).toStrictEqual({ equalTo: [2, 3] })
+        expect(mapFilterType(IntListType, [2, 3], ['='])).toStrictEqual({
+          equalTo: [2, 3],
+        })
       })
       it('!=', () => {
-        expect(mapFilterType(IntListType, [2, 3], ['!='])).toStrictEqual({ notEqualTo: [2, 3] })
+        expect(mapFilterType(IntListType, [2, 3], ['!='])).toStrictEqual({
+          notEqualTo: [2, 3],
+        })
       })
       it('overlaps', () => {
-        expect(mapFilterType(IntListType, [2, 3], ['overlaps'])).toStrictEqual({ overlaps: [2, 3] })
+        expect(mapFilterType(IntListType, [2, 3], ['overlaps'])).toStrictEqual({
+          overlaps: [2, 3],
+        })
       })
       it('contains', () => {
-        expect(mapFilterType(IntListType, [2, 3], ['contains'])).toStrictEqual({ contains: [2, 3] })
+        expect(mapFilterType(IntListType, [2, 3], ['contains'])).toStrictEqual({
+          contains: [2, 3],
+        })
       })
       it('containedBy', () => {
-        expect(mapFilterType(IntListType, [2, 3], ['containedBy'])).toStrictEqual({ containedBy: [2, 3] })
+        expect(
+          mapFilterType(IntListType, [2, 3], ['containedBy']),
+        ).toStrictEqual({ containedBy: [2, 3] })
       })
       it('distinctFrom', () => {
-        expect(mapFilterType(IntListType, [2, 3], ['distinctFrom'])).toStrictEqual({ distinctFrom: [2, 3] })
+        expect(
+          mapFilterType(IntListType, [2, 3], ['distinctFrom']),
+        ).toStrictEqual({ distinctFrom: [2, 3] })
       })
       it('notDistinctFrom', () => {
-        expect(mapFilterType(IntListType, [2, 3], ['notDistinctFrom'])).toStrictEqual({ notDistinctFrom: [2, 3] })
+        expect(
+          mapFilterType(IntListType, [2, 3], ['notDistinctFrom']),
+        ).toStrictEqual({ notDistinctFrom: [2, 3] })
       })
     })
 
@@ -185,34 +248,52 @@ describe('filters', () => {
         expect(mapFilterType(ENUMType, 'V', [])).toStrictEqual({ equalTo: 'V' })
       })
       it('=', () => {
-        expect(mapFilterType(ENUMType, 'V', ['='])).toStrictEqual({ equalTo: 'V' })
+        expect(mapFilterType(ENUMType, 'V', ['='])).toStrictEqual({
+          equalTo: 'V',
+        })
       })
       it('!=', () => {
-        expect(mapFilterType(ENUMType, 'V', ['!='])).toStrictEqual({ notEqualTo: 'V' })
+        expect(mapFilterType(ENUMType, 'V', ['!='])).toStrictEqual({
+          notEqualTo: 'V',
+        })
       })
       it('null', () => {
-        expect(mapFilterType(ENUMType, true, ['null'])).toStrictEqual({ isNull: true })
+        expect(mapFilterType(ENUMType, true, ['null'])).toStrictEqual({
+          isNull: true,
+        })
       })
       it('!null', () => {
-        expect(mapFilterType(ENUMType, true, ['!null'])).toStrictEqual({ isNull: false })
+        expect(mapFilterType(ENUMType, true, ['!null'])).toStrictEqual({
+          isNull: false,
+        })
       })
     })
 
     describe('type ENUMArray operation', () => {
       it('default', () => {
-        expect(mapFilterType(ENUMType, ['V', 'V2'], [])).toStrictEqual({ in: ['V', 'V2'] })
+        expect(mapFilterType(ENUMType, ['V', 'V2'], [])).toStrictEqual({
+          in: ['V', 'V2'],
+        })
       })
       it('=', () => {
-        expect(mapFilterType(ENUMType, ['V', 'V2'], ['='])).toStrictEqual({ in: ['V', 'V2'] })
+        expect(mapFilterType(ENUMType, ['V', 'V2'], ['='])).toStrictEqual({
+          in: ['V', 'V2'],
+        })
       })
       it('!=', () => {
-        expect(mapFilterType(ENUMType, ['V', 'V2'], ['!='])).toStrictEqual({ notIn: ['V', 'V2'] })
+        expect(mapFilterType(ENUMType, ['V', 'V2'], ['!='])).toStrictEqual({
+          notIn: ['V', 'V2'],
+        })
       })
       it('in', () => {
-        expect(mapFilterType(ENUMType, ['V', 'V2'], ['in'])).toStrictEqual({ in: ['V', 'V2'] })
+        expect(mapFilterType(ENUMType, ['V', 'V2'], ['in'])).toStrictEqual({
+          in: ['V', 'V2'],
+        })
       })
       it('!in', () => {
-        expect(mapFilterType(ENUMType, ['V', 'V2'], ['!in'])).toStrictEqual({ notIn: ['V', 'V2'] })
+        expect(mapFilterType(ENUMType, ['V', 'V2'], ['!in'])).toStrictEqual({
+          notIn: ['V', 'V2'],
+        })
       })
     })
 
@@ -228,47 +309,37 @@ describe('filters', () => {
       })
       it('!=', () => {
         expect(
-          mapFilterType(
-            DatetimeType,
-            new Date('05 October 2020 14:48 UTC'),
-            ['!='],
-          ),
+          mapFilterType(DatetimeType, new Date('05 October 2020 14:48 UTC'), [
+            '!=',
+          ]),
         ).toStrictEqual({ notEqualTo: '2020-10-05T14:48:00.000Z' })
       })
       it('<', () => {
         expect(
-          mapFilterType(
-            DatetimeType,
-            new Date('05 October 2020 14:48 UTC'),
-            ['<'],
-          ),
+          mapFilterType(DatetimeType, new Date('05 October 2020 14:48 UTC'), [
+            '<',
+          ]),
         ).toStrictEqual({ lessThan: '2020-10-05T14:48:00.000Z' })
       })
       it('<=', () => {
         expect(
-          mapFilterType(
-            DatetimeType,
-            new Date('05 October 2020 14:48 UTC'),
-            ['<='],
-          ),
+          mapFilterType(DatetimeType, new Date('05 October 2020 14:48 UTC'), [
+            '<=',
+          ]),
         ).toStrictEqual({ lessThanOrEqualTo: '2020-10-05T14:48:00.000Z' })
       })
       it('>', () => {
         expect(
-          mapFilterType(
-            DatetimeType,
-            new Date('05 October 2020 14:48 UTC'),
-            ['>'],
-          ),
+          mapFilterType(DatetimeType, new Date('05 October 2020 14:48 UTC'), [
+            '>',
+          ]),
         ).toStrictEqual({ greaterThan: '2020-10-05T14:48:00.000Z' })
       })
       it('>=', () => {
         expect(
-          mapFilterType(
-            DatetimeType,
-            new Date('05 October 2020 14:48 UTC'),
-            ['>='],
-          ),
+          mapFilterType(DatetimeType, new Date('05 October 2020 14:48 UTC'), [
+            '>=',
+          ]),
         ).toStrictEqual({ greaterThanOrEqualTo: '2020-10-05T14:48:00.000Z' })
       })
     })
@@ -287,8 +358,14 @@ describe('filters', () => {
       fields: [
         { name: 'i', type: { name: 'Int' } },
         { name: 'ia', type: { name: 'Int' } },
-        { name: 'intList', type: { kind: 'LIST', ofType: { kind: 'SCALAR', name: 'Int' } } },
-        { name: 'intList2', type: { kind: 'LIST', ofType: { kind: 'SCALAR', name: 'Int' } } },
+        {
+          name: 'intList',
+          type: { kind: 'LIST', ofType: { kind: 'SCALAR', name: 'Int' } },
+        },
+        {
+          name: 'intList2',
+          type: { kind: 'LIST', ofType: { kind: 'SCALAR', name: 'Int' } },
+        },
         { name: 's', type: { name: 'String' } },
         { name: 's2', type: { ofType: { name: 'String' } } },
       ],
@@ -314,7 +391,7 @@ describe('filters', () => {
             s2: 's2',
           },
           FilterType,
-          null
+          null,
         ),
       ).toStrictEqual({
         and: [
@@ -333,15 +410,17 @@ describe('filters', () => {
     it('type map can be provided', () => {
       const MyTypeToFilterMap = {
         Int: {
-          'special': ['isTheAnswer', v => 42],
-        }
+          special: ['isTheAnswer', () => 42],
+        },
       }
-      expect(createFilter({'i special': 1}, FilterType, MyTypeToFilterMap)).toStrictEqual({
+      expect(
+        createFilter({ 'i special': 1 }, FilterType, MyTypeToFilterMap),
+      ).toStrictEqual({
         and: [
           {
-            i: { isTheAnswer: 42}
-          }
-        ]
+            i: { isTheAnswer: 42 },
+          },
+        ],
       })
     })
   })

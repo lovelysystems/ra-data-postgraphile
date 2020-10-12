@@ -85,8 +85,8 @@ export default (
     let resource = resources[resourceName]
     if (!resource) {
       const resourceOptions = get(options, ['resources', resourceName])
-      const resourceClass = resourceOptions.resourceClass || BaseResource
-      resource = new resourceClass(
+      const ResourceClass = resourceOptions.resourceClass || BaseResource
+      resource = new ResourceClass(
         mappedIntrospection,
         resourceOptions.backendResourceName || resourceName,
         resourceOptions,
@@ -119,9 +119,9 @@ export class BaseResource implements IResource {
   public pluralizedQueryTypeName: string
   public pluralizedTypeName: string
 
-  public hasCompoundKey: boolean = false
-  public primaryKeyFieldName: string = 'id'
-  public primaryKeyTypeName: string = ''
+  public hasCompoundKey = false
+  public primaryKeyFieldName = 'id'
+  public primaryKeyTypeName = ''
   public prepareForReactAdmin: any
 
   public getOneResourceName: string
@@ -207,16 +207,16 @@ export class BaseResource implements IResource {
               __rawId: data.id,
               id: data.nodeId,
             }
-          } else {
-            return {
-              __rawId: null,
-              id: null,
-              nodeId: null,
-            }
+          }
+          return {
+            __rawId: null,
+            id: null,
+            nodeId: null,
           }
         }
       : (data: any): any => {
           if (this.primaryKeyFieldName !== 'id') {
+            // eslint-disable-next-line no-param-reassign
             data.id = data[this.primaryKeyFieldName]
           }
           return data
@@ -246,6 +246,7 @@ export class BaseResource implements IResource {
       ? (data: any) => ({
           ...data,
           nodeId: data.id,
+          // eslint-disable-next-line no-underscore-dangle
           id: data.__rawId,
         })
       : (data: any) => {
@@ -351,8 +352,8 @@ export class BaseResource implements IResource {
     let resultName = get(options, 'resultName', '')
     let inputName = 'input'
     if (resultName) {
-      inputName = inputName + resultName
-      resultName = resultName + ':'
+      inputName += resultName
+      resultName += ':'
     }
     const inputId = this.hasCompoundKey ? 'nodeId' : this.primaryKeyFieldName
     return {
@@ -581,6 +582,7 @@ export class BaseResource implements IResource {
       default:
         throwError()
     }
+    return undefined
   }
 
   /**
