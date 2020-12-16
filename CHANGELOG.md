@@ -4,6 +4,7 @@
 
 ### Development
 
+- Support filter for 'SCALAR' type (provided by postgraphile-plugin-fulltext-filter)
 - Use Typescript 4.0.3
 - Adapted a lot of dependecies to align with lovely-ra
 

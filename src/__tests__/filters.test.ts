@@ -26,6 +26,11 @@ const ENUMType: GQLType = {
   name: 'ContractType',
 }
 
+const SCALARType: GQLType = {
+  kind: 'SCALAR',
+  name: 'Fulltext',
+}
+
 const UnknownType: GQLType = {
   kind: 'Kind',
   name: 'Unknown',
@@ -240,6 +245,14 @@ describe('filters', () => {
         expect(
           mapFilterType(IntListType, [2, 3], ['notDistinctFrom']),
         ).toStrictEqual({ notDistinctFrom: [2, 3] })
+      })
+    })
+
+    describe('type SCALAR operation', () => {
+      it('default', () => {
+        expect(mapFilterType(SCALARType, 'V', [])).toStrictEqual({
+          matches: 'V*',
+        })
       })
     })
 

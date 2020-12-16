@@ -3,7 +3,7 @@ import { GQLType, FilterFields, TypeFilterMapping } from './types'
 /**
  * Map query filter operations to backend filter names
  *
- * By using a type an an operation this mapping allows to build the filter
+ * By using a type and an operation this mapping allows to build the filter
  * parameters for postgraphile.
  */
 export const TYPE_TO_FILTER_MAPPINGS = {
@@ -80,6 +80,10 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     '>': ['greaterThan', (value: Date) => value.toISOString()],
     '>=': ['greaterThanOrEqualTo', (value: Date) => value.toISOString()],
     default: ['equalTo', (value: Date) => value.toISOString()],
+  },
+  // provided by postgraphile-plugin-fulltext-filter
+  SCALAR: {
+    default: ['matches', (value: string) => `${value}*`],
   },
 } as TypeFilterMapping
 
