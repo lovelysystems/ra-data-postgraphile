@@ -494,7 +494,7 @@ export class BaseResource implements IResource {
     const orderBy = sort
       ? [createSortingKey(sort.field, sort.order)]
       : [NATURAL_SORTING]
-    const filters = createFilter(
+    const { filters, filterOrderBy } = createFilter(
       filter,
       this.introspection.type,
       this.typeToFilterMap,
@@ -503,7 +503,7 @@ export class BaseResource implements IResource {
       offset: (pagination.page - 1) * pagination.perPage,
       first: pagination.perPage,
       filter: filters,
-      orderBy,
+      orderBy: filterOrderBy.concat(orderBy),
     }
   }
 

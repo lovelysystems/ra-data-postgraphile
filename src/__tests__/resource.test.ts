@@ -26,6 +26,7 @@ describe('resource', () => {
     nodeId: true,
     name: true,
     id: true,
+    myFulltext: true,
   }
 
   const CompoundProperties = {
@@ -73,6 +74,7 @@ describe('resource', () => {
       expect(print(result.query)).toStrictEqual(`query test($id: Int!) {
   test(id: $id) {
     id
+    myFulltext
     name
     nodeId
   }
@@ -103,6 +105,7 @@ describe('resource', () => {
   tests(filter: {id: {in: $ids}}) {
     nodes {
       id
+      myFulltext
       name
       nodeId
     }
@@ -158,6 +161,7 @@ describe('resource', () => {
   createTest(input: $input) {
     test {
       id
+      myFulltext
       name
       nodeId
     }
@@ -206,6 +210,7 @@ describe('resource', () => {
   updateTest(input: $input) {
     test {
       id
+      myFulltext
       name
       nodeId
     }
@@ -303,6 +308,7 @@ describe('resource', () => {
   tests(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
     nodes {
       id
+      myFulltext
       name
       nodeId
     }
@@ -363,6 +369,23 @@ describe('resource', () => {
       })
     })
 
+    it('Filter specific order by commands are prepended to the sorting on GET_LIST', () => {
+      const provider = resourceFactory(introspectionResult, {
+        options: OPTIONS,
+      })
+      const result = provider(GET_LIST, 'Test', {
+        sort: { field: 'name', order: 'DESC' },
+        filter: { myFulltext: 'hello' },
+        pagination: { page: 1, perPage: 10 },
+      })
+      expect(result.variables).toStrictEqual({
+        filter: { and: [{ myFulltext: { matches: 'hello*' } }] },
+        first: 10,
+        offset: 0,
+        orderBy: ['MY_FULLTEXT_RANK_DESC', 'NAME_DESC'],
+      })
+    })
+
     it('GET_MANY_REFERENCE provides a query', () => {
       const provider = resourceFactory(introspectionResult, {
         options: OPTIONS,
@@ -392,6 +415,7 @@ describe('resource', () => {
   tests(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
     nodes {
       id
+      myFulltext
       name
       nodeId
     }
@@ -447,6 +471,7 @@ describe('resource', () => {
   deleteTest(input: $input) {
     test {
       id
+      myFulltext
       name
       nodeId
     }

@@ -26,9 +26,9 @@ const ENUMType: GQLType = {
   name: 'ContractType',
 }
 
-const SCALARType: GQLType = {
+const FullTextType: GQLType = {
   kind: 'SCALAR',
-  name: 'Fulltext',
+  name: 'FullText',
 }
 
 const UnknownType: GQLType = {
@@ -248,9 +248,9 @@ describe('filters', () => {
       })
     })
 
-    describe('type SCALAR operation', () => {
+    describe('type FullText operation', () => {
       it('default', () => {
-        expect(mapFilterType(SCALARType, 'V', [])).toStrictEqual({
+        expect(mapFilterType(FullTextType, 'V', [])).toStrictEqual({
           matches: 'V*',
         })
       })
@@ -381,15 +381,23 @@ describe('filters', () => {
         },
         { name: 's', type: { name: 'String' } },
         { name: 's2', type: { ofType: { name: 'String' } } },
+        { name: 'ft1', type: { name: 'FullText' }}
+        { name: 'ft2', type: { name: 'FullText' }}
       ],
     }
 
     it('returnd undefined on empty filter input', () => {
-      expect(createFilter({}, FilterType)).toBeUndefined()
+      expect(createFilter({}, FilterType)).toStrictEqual({
+        filterOrderBy: [],
+        filters: undefined,
+      })
     })
 
     it('ignores unknwon property names', () => {
-      expect(createFilter({ unknown: 'value' }, FilterType)).toBeUndefined()
+      expect(createFilter({ unknown: 'value' }, FilterType)).toStrictEqual({
+        filterOrderBy: [],
+        filters: undefined,
+      })
     })
 
     it('creates a postgraphile filter expression', () => {
@@ -407,18 +415,58 @@ describe('filters', () => {
           null,
         ),
       ).toStrictEqual({
-        and: [
-          {
-            i: { notEqualTo: 1 },
-            ia: { in: [1, 2] },
-            intList: { anyEqualTo: 3 },
-            intList2: { overlaps: [3, 4] },
-            s: { isNull: true },
-            s2: { likeInsensitive: '%s2%' },
-          },
-        ],
+        filterOrderBy: [],
+        filters: {
+          and: [
+            {
+              i: { notEqualTo: 1 },
+              ia: { in: [1, 2] },
+              intList: { anyEqualTo: 3 },
+              intList2: { overlaps: [3, 4] },
+              s: { isNull: true },
+              s2: { likeInsensitive: '%s2%' },
+            },
+          ],
+        },
       })
     })
+
+    it('creates ordered by list for configured fields', () => {
+      expect(
+        createFilter(
+          {
+            'ft1': 'work',
+            'ft2': 'life',
+          },
+          FilterType,
+          null,
+        )
+      ).toStrictEqual({
+        filterOrderBy: ['FT1_RANK_DESC', 'FT2_RANK_DESC'],
+        filters: {
+          and: [
+            {
+              ft1: { matches: 'work*' },
+              ft2: { matches: 'life*' },
+            }
+          ]
+        }
+      })
+    })
+
+    it('order of filters defines ordered by position', () => {
+      expect(
+        createFilter(
+          {
+            'ft2': 'two',
+            'ft1': 'one',
+          },
+          FilterType,
+          null,
+        ).filterOrderBy
+      ).toStrictEqual(['FT2_RANK_DESC', 'FT1_RANK_DESC'])
+    })
+
 
     it('type map can be provided', () => {
       const MyTypeToFilterMap = {
@@ -429,11 +477,14 @@ describe('filters', () => {
       expect(
         createFilter({ 'i special': 1 }, FilterType, MyTypeToFilterMap),
       ).toStrictEqual({
-        and: [
-          {
-            i: { isTheAnswer: 42 },
-          },
-        ],
+        filterOrderBy: [],
+        filters: {
+          and: [
+            {
+              i: { isTheAnswer: 42 },
+            },
+          ],
+        },
       })
     })
   })
