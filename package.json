@@ -45,6 +45,7 @@
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.20",
+    "pg-tsquery": "^8.1.0",
     "react-admin": "^3.9.2",
     "ra-data-graphql": "^3.9.2"
   },

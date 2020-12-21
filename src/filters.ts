@@ -1,5 +1,10 @@
+import tsquery from 'pg-tsquery'
 import { GQLType, FilterFields, TypeFilterMapping } from './types'
 import { createSortingKey } from './utils'
+
+const AVOID_ASTERISK_REGEX = /(\||<->|:\*|!)/
+const PRO_AND_REGEX = /\W(&|and)\W/i
+const QUOTED_REGEX = /"\w*"|'\w*'/i
 
 /**
  * Map query filter operations to backend filter names
@@ -83,7 +88,38 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     default: ['equalTo', (value: Date) => value.toISOString()],
   },
   FullText: {
-    default: ['matches', (value: string) => `${value}*`],
+    '=': ['matches'],
+    default: [
+      'matches',
+      (value: string) => {
+        const parser = new (tsquery as any).Tsquery()
+        const node = parser.parse(value)
+        if (!node) {
+          // some strings can not be parsed by lib - query original string
+          return value
+        }
+        const parsed = node.toString()
+        // use original query string on explicit and/or/negated queries
+        if (parsed.match(AVOID_ASTERISK_REGEX) || value.match(PRO_AND_REGEX)) {
+          return value
+        }
+        // append asterisks on each term except quoted terms
+        return parsed
+          .split('&')
+          .map((v: string) => {
+            if (v.match(QUOTED_REGEX)) {
+              return v
+            }
+            if (v.startsWith("'")) {
+              // terms starting with ' but not ending would lead
+              // to syntax error in tsquery
+              return v.substr(1)
+            }
+            return `${v}*`
+          })
+          .join(' ')
+      },
+    ],
   },
 } as TypeFilterMapping
 

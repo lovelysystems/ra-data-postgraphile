@@ -249,9 +249,84 @@ describe('filters', () => {
     })
 
     describe('type FullText operation', () => {
-      it('default', () => {
-        expect(mapFilterType(FullTextType, 'V', [])).toStrictEqual({
-          matches: 'V*',
+      it('simple tokens get an asterisk appended', () => {
+        expect(mapFilterType(FullTextType, 'wor', [])).toStrictEqual({
+          matches: 'wor*',
+        })
+      })
+      it('on multiple simple tokens an asterisk is appended to each token', () => {
+        expect(mapFilterType(FullTextType, 'let fin wor', [])).toStrictEqual({
+          matches: 'let* fin* wor*',
+        })
+      })
+      it('or queries use whole word without asterisk', () => {
+        expect(mapFilterType(FullTextType, 'boy or girl', [])).toStrictEqual({
+          matches: 'boy or girl',
+        })
+        expect(mapFilterType(FullTextType, 'boy,girl', [])).toStrictEqual({
+          matches: 'boy,girl',
+        })
+        expect(mapFilterType(FullTextType, 'boy | girl', [])).toStrictEqual({
+          matches: 'boy | girl',
+        })
+      })
+      it('negated queries do not use asterisk', () => {
+        expect(mapFilterType(FullTextType, '!house', [])).toStrictEqual({
+          matches: '!house',
+        })
+        expect(mapFilterType(FullTextType, '-house', [])).toStrictEqual({
+          matches: '-house',
+        })
+      })
+      it('quoted queries do not use asterisk', () => {
+        expect(mapFilterType(FullTextType, '"my mind"', [])).toStrictEqual({
+          matches: '"my mind"',
+        })
+        expect(mapFilterType(FullTextType, "'my mind'", [])).toStrictEqual({
+          matches: "'my mind'",
+        })
+      })
+      it('explicit and queries do not use asterisk', () => {
+        expect(mapFilterType(FullTextType, 'cat & mouse', [])).toStrictEqual({
+          matches: 'cat & mouse',
+        })
+        expect(mapFilterType(FullTextType, 'cat and mouse', [])).toStrictEqual({
+          matches: 'cat and mouse',
+        })
+      })
+      it('mixed queries do not use asterisk', () => {
+        expect(mapFilterType(FullTextType, 'cat dog !mouse', [])).toStrictEqual(
+          {
+            matches: 'cat dog !mouse',
+          },
+        )
+        expect(mapFilterType(FullTextType, 'cat dog, mouse', [])).toStrictEqual(
+          {
+            matches: 'cat dog, mouse',
+          },
+        )
+        expect(
+          mapFilterType(FullTextType, 'cat dog "giant ant"', []),
+        ).toStrictEqual({
+          matches: 'cat dog "giant ant"',
+        })
+      })
+      it('on quoted single words no asterisks is appended', () => {
+        expect(mapFilterType(FullTextType, 'cat "dog"', [])).toStrictEqual({
+          matches: 'cat* "dog"',
+        })
+        expect(mapFilterType(FullTextType, "cat 'dog'", [])).toStrictEqual({
+          matches: 'cat* "dog"',
+        })
+      })
+      it('unfinished single quotes are removed to avoid tsquery errors', () => {
+        expect(mapFilterType(FullTextType, "'typin", [])).toStrictEqual({
+          matches: 'typin',
+        })
+      })
+      it('using the equals method will not append asterisks at all', () => {
+        expect(mapFilterType(FullTextType, 'wor', ['='])).toStrictEqual({
+          matches: 'wor',
         })
       })
     })
@@ -381,8 +456,8 @@ describe('filters', () => {
         },
         { name: 's', type: { name: 'String' } },
         { name: 's2', type: { ofType: { name: 'String' } } },
-        { name: 'ft1', type: { name: 'FullText' }}
-        { name: 'ft2', type: { name: 'FullText' }}
+        { name: 'ft1', type: { name: 'FullText' } },
+        { name: 'ft2', type: { name: 'FullText' } },
       ],
     }
 
@@ -435,12 +510,12 @@ describe('filters', () => {
       expect(
         createFilter(
           {
-            'ft1': 'work',
-            'ft2': 'life',
+            ft1: 'work',
+            ft2: 'life',
           },
           FilterType,
           null,
-        )
+        ),
       ).toStrictEqual({
         filterOrderBy: ['FT1_RANK_DESC', 'FT2_RANK_DESC'],
         filters: {
@@ -448,9 +523,9 @@ describe('filters', () => {
             {
               ft1: { matches: 'work*' },
               ft2: { matches: 'life*' },
-            }
-          ]
-        }
+            },
+          ],
+        },
       })
     })
 
@@ -458,15 +533,14 @@ describe('filters', () => {
       expect(
         createFilter(
           {
-            'ft2': 'two',
-            'ft1': 'one',
+            ft2: 'two',
+            ft1: 'one',
           },
           FilterType,
           null,
-        ).filterOrderBy
+        ).filterOrderBy,
       ).toStrictEqual(['FT2_RANK_DESC', 'FT1_RANK_DESC'])
     })
-
 
     it('type map can be provided', () => {
       const MyTypeToFilterMap = {
