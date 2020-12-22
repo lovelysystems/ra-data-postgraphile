@@ -1,9 +1,15 @@
+import tsquery from 'pg-tsquery'
 import { GQLType, FilterFields, TypeFilterMapping } from './types'
+import { createSortingKey } from './utils'
+
+const AVOID_ASTERISK_REGEX = /(\||<->|:\*|!)/
+const PRO_AND_REGEX = /\W(&|and)\W/i
+const QUOTED_REGEX = /"\w*"|'\w*'/i
 
 /**
  * Map query filter operations to backend filter names
  *
- * By using a type an an operation this mapping allows to build the filter
+ * By using a type and an operation this mapping allows to build the filter
  * parameters for postgraphile.
  */
 export const TYPE_TO_FILTER_MAPPINGS = {
@@ -81,7 +87,52 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     '>=': ['greaterThanOrEqualTo', (value: Date) => value.toISOString()],
     default: ['equalTo', (value: Date) => value.toISOString()],
   },
+  FullText: {
+    '=': ['matches'],
+    default: [
+      'matches',
+      (value: string) => {
+        const parser = new (tsquery as any).Tsquery()
+        const node = parser.parse(value)
+        if (!node) {
+          // some strings can not be parsed by lib - query original string
+          return value
+        }
+        const parsed = node.toString()
+        // use original query string on explicit and/or/negated queries
+        if (parsed.match(AVOID_ASTERISK_REGEX) || value.match(PRO_AND_REGEX)) {
+          return value
+        }
+        // append asterisks on each term except quoted terms
+        return parsed
+          .split('&')
+          .map((v: string) => {
+            if (v.match(QUOTED_REGEX)) {
+              return v
+            }
+            if (v.startsWith("'")) {
+              // terms starting with ' but not ending would lead
+              // to syntax error in tsquery
+              return v.substr(1)
+            }
+            return `${v}*`
+          })
+          .join(' ')
+      },
+    ],
+  },
 } as TypeFilterMapping
+
+const getTypeName = (filter: TypeFilterMapping, type: GQLType, value: any) => {
+  // use different type names in case the provided value is an array
+  // First try to find a mapping for the type name (e.g. String).
+  let typeName = Array.isArray(value) ? `${type.name}Array` : type.name
+  if (!filter[typeName]) {
+    // Try to get a mapping for the kind (e.g. ENUM)
+    typeName = Array.isArray(value) ? `${type.kind}Array` : type.kind
+  }
+  return typeName
+}
 
 export const mapFilterType = (
   type: GQLType,
@@ -91,14 +142,7 @@ export const mapFilterType = (
 ): any => {
   // use the provided filter mappings or the integrated
   const filter = typeToFilter || TYPE_TO_FILTER_MAPPINGS
-  // use different type names in case the provided value is an array
-  // First try to find a mapping for the type name (e.g. String).
-
-  let typeName = Array.isArray(value) ? `${type.name}Array` : type.name
-  if (!filter[typeName]) {
-    // Try to get a mapping for the kind (e.g. ENUM)
-    typeName = Array.isArray(value) ? `${type.kind}Array` : type.kind
-  }
+  const typeName = getTypeName(filter, type, value)
   if (!filter[typeName]) {
     throw new Error(
       `Filter for type "${type.name}" or kind "${type.kind}" not implemented.`,
@@ -121,15 +165,38 @@ export const mapFilterType = (
   }
 }
 
+const ORDER_BY_TYPES: Record<string, (key: string, value?: any) => string> = {
+  FullText: (key: string) => createSortingKey(`${key}Rank`, 'DESC'),
+}
+
+const getOrderBy = (
+  key: string,
+  type: GQLType,
+  value: any,
+  typeToFilter: TypeFilterMapping | undefined | null = undefined,
+) => {
+  const filter = typeToFilter || TYPE_TO_FILTER_MAPPINGS
+  const typeName = getTypeName(filter, type, value)
+  const orderByFunc = ORDER_BY_TYPES[typeName]
+  if (orderByFunc) {
+    return orderByFunc(key, value)
+  }
+  return undefined
+}
+
 export const createFilter = (
   fields: FilterFields,
   type: GQLType,
-  typeToFilter: TypeFilterMapping | null | undefined,
-): any => {
+  typeToFilter?: TypeFilterMapping | null | undefined,
+): {
+  filters?: Record<string, unknown>
+  filterOrderBy: string[]
+} => {
   if (!fields) {
-    return undefined
+    return { filters: undefined, filterOrderBy: [] }
   }
   const empty = {}
+  const orderBys: string[] = []
   const filters = Object.keys(fields).reduce((next, key: string) => {
     const [name, ...operations] = getFilterParameters(key)
     const maybeType = type.fields.find((f: GQLType) => f.name === name)
@@ -139,17 +206,26 @@ export const createFilter = (
       if (maybeType.type.kind === 'LIST') {
         subType = { ...subType, name: `${maybeType.type.ofType.name}List` }
       }
+      const value = fields[key]
+      const filterType = mapFilterType(subType, value, operations, typeToFilter)
+      const orderBy = getOrderBy(key, subType, value, typeToFilter)
+      if (orderBy) {
+        orderBys.push(orderBy)
+      }
       return {
         ...next,
-        [name]: mapFilterType(subType, fields[key], operations, typeToFilter),
+        [name]: filterType,
       }
     }
     return next
   }, empty)
   if (filters === empty) {
-    return undefined
+    return { filters: undefined, filterOrderBy: [] }
   }
-  return { and: [filters] }
+  return {
+    filters: { and: [filters] },
+    filterOrderBy: orderBys,
+  }
 }
 
 export const getFilterParameters = (name: string): string[] => {

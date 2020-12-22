@@ -26,6 +26,11 @@ const ENUMType: GQLType = {
   name: 'ContractType',
 }
 
+const FullTextType: GQLType = {
+  kind: 'SCALAR',
+  name: 'FullText',
+}
+
 const UnknownType: GQLType = {
   kind: 'Kind',
   name: 'Unknown',
@@ -243,6 +248,89 @@ describe('filters', () => {
       })
     })
 
+    describe('type FullText operation', () => {
+      it('simple tokens get an asterisk appended', () => {
+        expect(mapFilterType(FullTextType, 'wor', [])).toStrictEqual({
+          matches: 'wor*',
+        })
+      })
+      it('on multiple simple tokens an asterisk is appended to each token', () => {
+        expect(mapFilterType(FullTextType, 'let fin wor', [])).toStrictEqual({
+          matches: 'let* fin* wor*',
+        })
+      })
+      it('or queries use whole word without asterisk', () => {
+        expect(mapFilterType(FullTextType, 'boy or girl', [])).toStrictEqual({
+          matches: 'boy or girl',
+        })
+        expect(mapFilterType(FullTextType, 'boy,girl', [])).toStrictEqual({
+          matches: 'boy,girl',
+        })
+        expect(mapFilterType(FullTextType, 'boy | girl', [])).toStrictEqual({
+          matches: 'boy | girl',
+        })
+      })
+      it('negated queries do not use asterisk', () => {
+        expect(mapFilterType(FullTextType, '!house', [])).toStrictEqual({
+          matches: '!house',
+        })
+        expect(mapFilterType(FullTextType, '-house', [])).toStrictEqual({
+          matches: '-house',
+        })
+      })
+      it('quoted queries do not use asterisk', () => {
+        expect(mapFilterType(FullTextType, '"my mind"', [])).toStrictEqual({
+          matches: '"my mind"',
+        })
+        expect(mapFilterType(FullTextType, "'my mind'", [])).toStrictEqual({
+          matches: "'my mind'",
+        })
+      })
+      it('explicit and queries do not use asterisk', () => {
+        expect(mapFilterType(FullTextType, 'cat & mouse', [])).toStrictEqual({
+          matches: 'cat & mouse',
+        })
+        expect(mapFilterType(FullTextType, 'cat and mouse', [])).toStrictEqual({
+          matches: 'cat and mouse',
+        })
+      })
+      it('mixed queries do not use asterisk', () => {
+        expect(mapFilterType(FullTextType, 'cat dog !mouse', [])).toStrictEqual(
+          {
+            matches: 'cat dog !mouse',
+          },
+        )
+        expect(mapFilterType(FullTextType, 'cat dog, mouse', [])).toStrictEqual(
+          {
+            matches: 'cat dog, mouse',
+          },
+        )
+        expect(
+          mapFilterType(FullTextType, 'cat dog "giant ant"', []),
+        ).toStrictEqual({
+          matches: 'cat dog "giant ant"',
+        })
+      })
+      it('on quoted single words no asterisks is appended', () => {
+        expect(mapFilterType(FullTextType, 'cat "dog"', [])).toStrictEqual({
+          matches: 'cat* "dog"',
+        })
+        expect(mapFilterType(FullTextType, "cat 'dog'", [])).toStrictEqual({
+          matches: 'cat* "dog"',
+        })
+      })
+      it('unfinished single quotes are removed to avoid tsquery errors', () => {
+        expect(mapFilterType(FullTextType, "'typin", [])).toStrictEqual({
+          matches: 'typin',
+        })
+      })
+      it('using the equals method will not append asterisks at all', () => {
+        expect(mapFilterType(FullTextType, 'wor', ['='])).toStrictEqual({
+          matches: 'wor',
+        })
+      })
+    })
+
     describe('type ENUM operation', () => {
       it('default', () => {
         expect(mapFilterType(ENUMType, 'V', [])).toStrictEqual({ equalTo: 'V' })
@@ -368,15 +456,23 @@ describe('filters', () => {
         },
         { name: 's', type: { name: 'String' } },
         { name: 's2', type: { ofType: { name: 'String' } } },
+        { name: 'ft1', type: { name: 'FullText' } },
+        { name: 'ft2', type: { name: 'FullText' } },
       ],
     }
 
     it('returnd undefined on empty filter input', () => {
-      expect(createFilter({}, FilterType)).toBeUndefined()
+      expect(createFilter({}, FilterType)).toStrictEqual({
+        filterOrderBy: [],
+        filters: undefined,
+      })
     })
 
     it('ignores unknwon property names', () => {
-      expect(createFilter({ unknown: 'value' }, FilterType)).toBeUndefined()
+      expect(createFilter({ unknown: 'value' }, FilterType)).toStrictEqual({
+        filterOrderBy: [],
+        filters: undefined,
+      })
     })
 
     it('creates a postgraphile filter expression', () => {
@@ -394,17 +490,56 @@ describe('filters', () => {
           null,
         ),
       ).toStrictEqual({
-        and: [
-          {
-            i: { notEqualTo: 1 },
-            ia: { in: [1, 2] },
-            intList: { anyEqualTo: 3 },
-            intList2: { overlaps: [3, 4] },
-            s: { isNull: true },
-            s2: { likeInsensitive: '%s2%' },
-          },
-        ],
+        filterOrderBy: [],
+        filters: {
+          and: [
+            {
+              i: { notEqualTo: 1 },
+              ia: { in: [1, 2] },
+              intList: { anyEqualTo: 3 },
+              intList2: { overlaps: [3, 4] },
+              s: { isNull: true },
+              s2: { likeInsensitive: '%s2%' },
+            },
+          ],
+        },
       })
+    })
+
+    it('creates ordered by list for configured fields', () => {
+      expect(
+        createFilter(
+          {
+            ft1: 'work',
+            ft2: 'life',
+          },
+          FilterType,
+          null,
+        ),
+      ).toStrictEqual({
+        filterOrderBy: ['FT1_RANK_DESC', 'FT2_RANK_DESC'],
+        filters: {
+          and: [
+            {
+              ft1: { matches: 'work*' },
+              ft2: { matches: 'life*' },
+            },
+          ],
+        },
+      })
+    })
+
+    it('order of filters defines ordered by position', () => {
+      expect(
+        createFilter(
+          {
+            ft2: 'two',
+            ft1: 'one',
+          },
+          FilterType,
+          null,
+        ).filterOrderBy,
+      ).toStrictEqual(['FT2_RANK_DESC', 'FT1_RANK_DESC'])
     })
 
     it('type map can be provided', () => {
@@ -416,11 +551,14 @@ describe('filters', () => {
       expect(
         createFilter({ 'i special': 1 }, FilterType, MyTypeToFilterMap),
       ).toStrictEqual({
-        and: [
-          {
-            i: { isTheAnswer: 42 },
-          },
-        ],
+        filterOrderBy: [],
+        filters: {
+          and: [
+            {
+              i: { isTheAnswer: 42 },
+            },
+          ],
+        },
       })
     })
   })

@@ -57,6 +57,20 @@ export const ContentType = {
       deprecationReason: null,
     },
     {
+      name: 'myFulltext',
+      description: null,
+      args: [],
+      type: {
+        kind: 'SCALAR',
+        name: 'FullText',
+        ofType: null,
+        __typename: '__Type',
+      },
+      isDeprecated: false,
+      deprecationReason: null,
+      __typename: '__Field',
+    },
+    {
       name: 'blocks',
       type: {
         __typename: '__Type',
@@ -346,6 +360,18 @@ export const ContentPatch = {
       },
     },
     {
+      name: 'myFulltext',
+      description: null,
+      type: {
+        kind: 'SCALAR',
+        name: 'FullText',
+        ofType: null,
+        __typename: '__Type',
+      },
+      defaultValue: null,
+      __typename: '__InputValue',
+    },
+    {
       defaultValue: null,
       __typename: '__InputValue',
       description: null,
@@ -569,6 +595,20 @@ export const TestTypes: Array<GQLType> = [
         deprecationReason: null,
       },
       {
+        name: 'myFulltext',
+        description: null,
+        args: [],
+        type: {
+          kind: 'SCALAR',
+          name: 'FullText',
+          ofType: null,
+          __typename: '__Type',
+        },
+        isDeprecated: false,
+        deprecationReason: null,
+        __typename: '__Field',
+      },
+      {
         name: 'blocks',
         type: {
           __typename: '__Type',
@@ -757,6 +797,18 @@ export const TestTypes: Array<GQLType> = [
           name: 'Boolean',
           ofType: null,
         },
+      },
+      {
+        name: 'myFulltext',
+        description: null,
+        type: {
+          kind: 'SCALAR',
+          name: 'FullText',
+          ofType: null,
+          __typename: '__Type',
+        },
+        defaultValue: null,
+        __typename: '__InputValue',
       },
       {
         defaultValue: null,
