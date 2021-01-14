@@ -197,28 +197,44 @@ export const createFilter = (
   }
   const empty = {}
   const orderBys: string[] = []
-  const filters = Object.keys(fields).reduce((next, key: string) => {
-    const [name, ...operations] = getFilterParameters(key)
-    const maybeType = type.fields.find((f: GQLType) => f.name === name)
-    if (maybeType) {
-      let subType = maybeType.type.ofType || maybeType.type
+  const filters = Object.keys(fields).reduce(
+    (next: Record<string, unknown>, key: string) => {
+      const [name, ...operations] = getFilterParameters(key)
+      const maybeType = type.fields.find((f: GQLType) => f.name === name)
+      if (maybeType) {
+        let subType = maybeType.type.ofType || maybeType.type
 
-      if (maybeType.type.kind === 'LIST') {
-        subType = { ...subType, name: `${maybeType.type.ofType.name}List` }
+        if (maybeType.type.kind === 'LIST') {
+          subType = { ...subType, name: `${maybeType.type.ofType.name}List` }
+        }
+        const value = fields[key]
+        const filterType = mapFilterType(
+          subType,
+          value,
+          operations,
+          typeToFilter,
+        )
+        const orderBy = getOrderBy(key, subType, value, typeToFilter)
+        if (orderBy) {
+          orderBys.push(orderBy)
+        }
+        const f = mapFilterType(subType, fields[key], operations, typeToFilter)
+        const exists: any = next[name]
+        if (exists) {
+          return {
+            ...next,
+            [name]: { ...exists, ...f },
+          }
+        }
+        return {
+          ...next,
+          [name]: f,
+        }
       }
-      const value = fields[key]
-      const filterType = mapFilterType(subType, value, operations, typeToFilter)
-      const orderBy = getOrderBy(key, subType, value, typeToFilter)
-      if (orderBy) {
-        orderBys.push(orderBy)
-      }
-      return {
-        ...next,
-        [name]: filterType,
-      }
-    }
-    return next
-  }, empty)
+      return next
+    },
+    empty,
+  )
   if (filters === empty) {
     return { filters: undefined, filterOrderBy: [] }
   }

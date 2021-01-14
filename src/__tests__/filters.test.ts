@@ -542,6 +542,31 @@ describe('filters', () => {
       ).toStrictEqual(['FT2_RANK_DESC', 'FT1_RANK_DESC'])
     })
 
+    it('combination of include and exclude filters for the same property is possible', () => {
+      expect(
+        createFilter(
+          {
+            i: 1, // e.g filter from input field
+            'i !in': [2, 3], // e.g. hardcoded filter
+          },
+          FilterType,
+          null,
+        ),
+      ).toStrictEqual({
+        filterOrderBy: [],
+        filters: {
+          and: [
+            {
+              i: {
+                equalTo: 1,
+                notIn: [2, 3],
+              },
+            },
+          ],
+        },
+      })
+    })
+
     it('type map can be provided', () => {
       const MyTypeToFilterMap = {
         Int: {

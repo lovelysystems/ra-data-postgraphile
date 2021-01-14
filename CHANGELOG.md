@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 2021-01-14 / 0.9.0
+
+### Feature
+
+- allow using include and exclude filters of same property
+  (e.g. input filter to include and hardcoded filter to exclude)
 
 ### Development
 
