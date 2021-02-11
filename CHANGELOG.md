@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Feature
+
+- added string list filter
+
 ## 2021-01-14 / 0.9.0
 
 ### Feature

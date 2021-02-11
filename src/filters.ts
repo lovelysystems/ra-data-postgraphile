@@ -6,6 +6,12 @@ const AVOID_ASTERISK_REGEX = /(\||<->|:\*|!)/
 const PRO_AND_REGEX = /\W(&|and)\W/i
 const QUOTED_REGEX = /"\w*"|'\w*'/i
 
+const normalizeStringList = (value: string) =>
+  value
+    ?.split(',')
+    .map(v => v.trim())
+    .filter(v => v)
+
 /**
  * Map query filter operations to backend filter names
  *
@@ -20,6 +26,12 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     '!null': ['isNull', () => false],
     likeInsensitive: ['likeInsensitive', (value: string) => `%${value}%`],
     default: ['likeInsensitive', (value: string) => `%${value}%`],
+  },
+  StringList: {
+    '=': ['equalTo', normalizeStringList],
+    contains: ['contains', normalizeStringList],
+    containedBy: ['containedBy', normalizeStringList],
+    default: ['equalTo', normalizeStringList],
   },
   Boolean: {
     '=': ['equalTo'],

@@ -13,6 +13,10 @@ const StringType: GQLType = {
   name: 'String',
 }
 
+const StringListType: GQLType = {
+  name: 'StringList',
+}
+
 const BooleanType: GQLType = {
   name: 'Boolean',
 }
@@ -87,6 +91,35 @@ describe('filters', () => {
       it('!null', () => {
         expect(mapFilterType(StringType, 'str', ['!null'])).toStrictEqual({
           isNull: false,
+        })
+      })
+    })
+
+    describe('type StringList operation', () => {
+      it('default', () => {
+        expect(mapFilterType(StringListType, 'car', [])).toStrictEqual({
+          equalTo: ['car'],
+        })
+      })
+      it('=', () => {
+        expect(mapFilterType(StringListType, 'car,house', ['='])).toStrictEqual(
+          {
+            equalTo: ['car', 'house'],
+          },
+        )
+      })
+      it('contains', () => {
+        expect(
+          mapFilterType(StringListType, 'car , house ,', ['contains']),
+        ).toStrictEqual({
+          contains: ['car', 'house'],
+        })
+      })
+      it('containedBy', () => {
+        expect(
+          mapFilterType(StringListType, 'big car,house, ', ['containedBy']),
+        ).toStrictEqual({
+          containedBy: ['big car', 'house'],
         })
       })
     })
