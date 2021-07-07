@@ -354,7 +354,7 @@ describe('filters', () => {
       })
       it('unfinished single quotes are removed to avoid tsquery errors', () => {
         expect(mapFilterType(FullTextType, "'typin", [])).toStrictEqual({
-          matches: 'typin',
+          matches: 'typin*',
         })
       })
       it('using the equals method will not append asterisks at all', () => {
