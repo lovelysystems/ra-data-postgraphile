@@ -1,3 +1,4 @@
+import { IntrospectionType } from 'graphql'
 import { CAMEL_REGEX, GQLType, GQLTypeMap } from './types'
 
 export const capitalize = (str: string): string =>
@@ -17,7 +18,7 @@ export const fieldIsObjectOrListOfObject = (field: GQLType): boolean =>
   (field.type.ofType &&
     (field.type.ofType.kind === 'OBJECT' || field.type.ofType.kind === 'LIST'))
 
-export const createTypeMap = (types: Array<GQLType>): GQLTypeMap => {
+export const createTypeMap = (types: IntrospectionType[]): GQLTypeMap => {
   return types.reduce((map: any, next: any) => {
     return {
       ...map,

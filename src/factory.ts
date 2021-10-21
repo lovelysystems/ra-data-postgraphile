@@ -1,12 +1,10 @@
-import buildGraphQLProvider from 'ra-data-graphql'
-
-import ApolloClient from 'apollo-client'
-import { InMemoryCache } from 'apollo-cache-inmemory'
+import { ApolloClient, InMemoryCache } from '@apollo/client'
 import { HttpLink } from 'apollo-link-http'
 import { onError } from 'apollo-link-error'
 import { ApolloLink } from 'apollo-link'
 
 import resource from './resource'
+import buildGraphQLProvider, { IntrospectionResult } from 'ra-data-graphql'
 
 export type FactorySettings = {
   uri?: string
@@ -14,6 +12,10 @@ export type FactorySettings = {
   cache?: any
   options: any
 }
+
+const createBuildQuery =
+  (options: any) => (introspectionResults: IntrospectionResult) =>
+    resource(introspectionResults, { options })
 
 export const factory = ({
   uri,
@@ -48,9 +50,9 @@ export const factory = ({
     link: link || defaultLink(),
     ...rest,
   })
+  const buildQuery = createBuildQuery(options)
   return buildGraphQLProvider({
     client,
-    buildQuery: resource,
-    options,
+    buildQuery,
   })
 }

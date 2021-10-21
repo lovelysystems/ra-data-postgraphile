@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking
+
+- Support react-admin 3.19.0
+
 ### Feature
 
 - added string list filter

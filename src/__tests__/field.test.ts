@@ -34,7 +34,7 @@ describe('createQueryFromType', () => {
           author: true,
         },
       }),
-    ).toStrictEqual(
+    ).toBe(
       ' de: blocks(filter: {lang: {equalTo: DE}}) {  type } author block {  type } blocks deleted id name nodeId pubTs ts',
     )
   })
@@ -57,7 +57,7 @@ describe('createQueryFromType', () => {
           },
         },
       }),
-    ).toStrictEqual(' de: block(lang:DE)')
+    ).toBe(' de: block(lang:DE)')
   })
 
   it('allows to define alias w/o arguments', () => {
@@ -77,7 +77,7 @@ describe('createQueryFromType', () => {
           },
         },
       }),
-    ).toStrictEqual(' effective: pubTs')
+    ).toBe(' effective: pubTs')
   })
 
   it('can be configured for object fields', () => {
@@ -99,6 +99,6 @@ describe('createQueryFromType', () => {
           id: true,
         },
       }),
-    ).toStrictEqual(' id name changedNameForNodeId')
+    ).toBe(' id name changedNameForNodeId')
   })
 })

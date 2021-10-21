@@ -36,7 +36,7 @@ describe('Resource Factory', () => {
     const result = provider(GET_LIST, 'Test', {
       pagination: { page: 1, perPage: 10 },
     })
-    expect(result.query.definitions[0].name.value).toStrictEqual('allTests')
+    expect(result.query.definitions[0].name.value).toBe('allTests')
   })
 
   it('allows to provide a resource specific provider class', () => {

@@ -19,14 +19,12 @@ import {
   DeleteParams,
   CreateParams,
   GetListParams,
-  LegacyDataProvider,
-} from 'ra-core'
+} from 'react-admin'
 import { capitalize, lowercase, createTypeMap, createSortingKey } from './utils'
 import { createQueryFromType, SimpleFieldHandlers } from './field'
 import { createFilter } from './filters'
 import {
   NATURAL_SORTING,
-  RADataGraphqlFactory,
   ResourceOptions,
   Response,
   MappedIntrospectionResult,
@@ -41,6 +39,7 @@ import {
   IResource,
   UpdateBuildOptions,
 } from './types'
+import { BuildQuery, IntrospectionResult } from 'ra-data-graphql'
 
 type Transformations = {
   [key: string]: any
@@ -56,11 +55,6 @@ function gqlTypeConverter(type: string): { (v: any): any } {
   }
 }
 
-type IntrospectionResult = {
-  types: [any]
-  queries: [any]
-}
-
 interface ResourceMapping {
   [key: string]: IResource
 }
@@ -72,8 +66,8 @@ type ResourceGetter = (resourceName: string) => IResource | null
  */
 export default (
   introspectionResults: IntrospectionResult,
-  factory: RADataGraphqlFactory,
-): LegacyDataProvider => {
+  factory: { options: any },
+): BuildQuery => {
   const mappedIntrospection: MappedIntrospectionResult = {
     ...introspectionResults,
     types: createTypeMap(introspectionResults.types),
@@ -96,12 +90,8 @@ export default (
     }
     return resource
   }
-  return (
-    raFetchType: string,
-    resourceName: string,
-    params: Record<string, any>,
-  ): Promise<any> => {
-    return getResource(resourceName).fetch(raFetchType, params)
+  return (name: string, resource: string, params: Record<string, any>) => {
+    return getResource(resource).fetch(name, params)
   }
 }
 
@@ -309,9 +299,8 @@ export class BaseResource implements IResource {
       query: this.createGetListQuery(),
       variables: this.createGetListVariables(params),
       parseResponse: (response: Response) => {
-        const { nodes, totalCount } = response.data[
-          this.pluralizedQueryTypeName
-        ]
+        const { nodes, totalCount } =
+          response.data[this.pluralizedQueryTypeName]
         return {
           data: nodes.map(this.prepareForReactAdmin),
           total: totalCount,
@@ -452,9 +441,8 @@ export class BaseResource implements IResource {
         },
       }),
       parseResponse: (response: Response) => {
-        const { nodes, totalCount } = response.data[
-          this.pluralizedQueryTypeName
-        ]
+        const { nodes, totalCount } =
+          response.data[this.pluralizedQueryTypeName]
         return {
           data: nodes.map(this.prepareForReactAdmin),
           total: totalCount,
@@ -596,8 +584,8 @@ export class BaseResource implements IResource {
       // not an input type
       return null
     }
-    const typeMapper: QueryVariableTypeMappers | null = this
-      .valueToQueryVariablesMap
+    const typeMapper: QueryVariableTypeMappers | null =
+      this.valueToQueryVariablesMap
     const resourceType = this.introspection.type
 
     return inputFields.reduce((current: any, next: any) => {

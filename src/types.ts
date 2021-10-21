@@ -7,7 +7,7 @@ import {
   DeleteParams,
   CreateParams,
   GetListParams,
-} from 'ra-core'
+} from 'react-admin'
 
 export type QueryVariableTypeMapper = (
   value: Record<string, any>,

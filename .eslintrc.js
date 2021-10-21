@@ -3,7 +3,7 @@ module.exports = {
     'eslint-config-ns',
     // add typescript specific linting rules and add prettier typescript support
     'plugin:@typescript-eslint/recommended',
-    'prettier/@typescript-eslint',
+    'prettier',
   ],
   parser: '@typescript-eslint/parser',
   rules: {
@@ -18,12 +18,17 @@ module.exports = {
     '@typescript-eslint/interface-name-prefix': 0,
     '@typescript-eslint/no-use-before-define': 0,
     // allow to use _ as prefix for unused arguments to functions, in order to implement interfaces
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', ignoreRestSiblings: true },
+    ],
     'import/extensions': 0,
     'import/no-named-as-default': 0,
     'import/order': 0,
     'lines-between-class-members': 0,
     'jest/prefer-strict-equal': 'error',
+    'jest/prefer-to-be-null': 'off',
+    'jest/prefer-to-be-undefined': 'off',
     'no-use-before-define': 0,
     'react/prop-types': 0,
     'react/forbid-prop-types': 0,
@@ -34,7 +39,12 @@ module.exports = {
     // this check somehow does not recognize list additions
     'no-unused-expressions': 0,
     // allow ForOfStatement, which is not allowed by airbnb preset
-    "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
+    'no-restricted-syntax': [
+      'error',
+      'ForInStatement',
+      'LabeledStatement',
+      'WithStatement',
+    ],
     'react/destructuring-assignment': 0,
   },
   overrides: [

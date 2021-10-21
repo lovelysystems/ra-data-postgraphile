@@ -10,21 +10,21 @@ import {
 describe('utils', () => {
   describe('string transformations', () => {
     it('capitalizes strings', () => {
-      expect(capitalize('lower')).toStrictEqual('Lower')
+      expect(capitalize('lower')).toBe('Lower')
     })
 
     it('lowercases strings', () => {
-      expect(lowercase('UPPer')).toStrictEqual('uPPer')
+      expect(lowercase('UPPer')).toBe('uPPer')
     })
 
     it('builds snake version of camel case strings', () => {
-      expect(snake('CamelCaseMore')).toStrictEqual('Camel_Case_More')
+      expect(snake('CamelCaseMore')).toBe('Camel_Case_More')
     })
   })
 
   describe('creates sorting keys', () => {
     it('field name and order', () => {
-      expect(createSortingKey('camelCaseFieldName', 'DESC')).toStrictEqual(
+      expect(createSortingKey('camelCaseFieldName', 'DESC')).toBe(
         'CAMEL_CASE_FIELD_NAME_DESC',
       )
     })
