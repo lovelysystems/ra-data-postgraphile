@@ -220,12 +220,6 @@ export const createFilter = (
           subType = { ...subType, name: `${maybeType.type.ofType.name}List` }
         }
         const value = fields[key]
-        const filterType = mapFilterType(
-          subType,
-          value,
-          operations,
-          typeToFilter,
-        )
         const orderBy = getOrderBy(key, subType, value, typeToFilter)
         if (orderBy) {
           orderBys.push(orderBy)
