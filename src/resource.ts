@@ -206,8 +206,10 @@ export class BaseResource implements IResource {
         }
       : (data: any): any => {
           if (this.primaryKeyFieldName !== 'id') {
-            // eslint-disable-next-line no-param-reassign
-            data.id = data[this.primaryKeyFieldName]
+            return {
+              ...data,
+              id: data[this.primaryKeyFieldName],
+            }
           }
           return data
         }
