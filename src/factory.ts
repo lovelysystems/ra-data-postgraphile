@@ -4,7 +4,8 @@ import { onError } from 'apollo-link-error'
 import { ApolloLink } from 'apollo-link'
 
 import resource from './resource'
-import buildGraphQLProvider, { IntrospectionResult } from 'ra-data-graphql'
+import buildGraphQLProvider from './provider'
+import { IntrospectionResult } from 'ra-data-graphql'
 
 export type FactorySettings = {
   uri?: string
