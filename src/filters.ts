@@ -49,6 +49,9 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     '!null': ['isNull', () => false],
     default: ['equalTo', Number],
   },
+  get BigInt() {
+    return this.Int
+  },
   IntArray: {
     '=': ['in', (value: string[]) => value.map(Number)],
     '!=': ['notIn', (value: string[]) => value.map(Number)],
