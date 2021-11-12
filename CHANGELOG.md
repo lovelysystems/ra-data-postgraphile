@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Feature
+
+- Refactored Base-Resource implementation in order to support polymorphism
+  on some filter methods.
+- Add support for 8-byte integer (BigInt).
+- Add "null" and "!null" filters to DateTime types
+
 ### Breaking
 
 - Support react-admin 3.19.0

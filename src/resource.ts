@@ -311,6 +311,15 @@ export class BaseResource implements IResource {
     }
   }
 
+  createInputVariables(params: CreateParams) {
+    return {
+      [this.queryTypeName]: this.recordToVariables(
+        params.data,
+        this.introspection.inputType,
+      ),
+    }
+  }
+
   create(params: CreateParams) {
     return {
       query: `create${this.typeName} (
@@ -323,12 +332,7 @@ export class BaseResource implements IResource {
         parameters: `$input: Create${this.typeName}Input!`,
       },
       variables: {
-        input: {
-          [this.queryTypeName]: this.recordToVariables(
-            params.data,
-            this.introspection.inputType,
-          ),
-        },
+        input: this.createInputVariables(params),
       },
       parseResponse: (response: Response) => ({
         data: this.prepareForReactAdmin(
@@ -479,16 +483,22 @@ export class BaseResource implements IResource {
     }}`
   }
 
-  createGetListVariables(params: GetListParams) {
-    const { filter, sort, pagination } = params
-    const orderBy = sort
-      ? [createSortingKey(sort.field, sort.order)]
-      : [NATURAL_SORTING]
+  createListFilter(filter: any) {
     const { filters, filterOrderBy } = createFilter(
       filter,
       this.introspection.type,
       this.typeToFilterMap,
     )
+    return { filters, filterOrderBy }
+  }
+
+  createGetListVariables(params: GetListParams) {
+    const { filter, sort, pagination } = params
+    const orderBy = sort
+      ? [createSortingKey(sort.field, sort.order)]
+      : [NATURAL_SORTING]
+    const { filters, filterOrderBy } = this.createListFilter(filter)
+
     return {
       offset: (pagination.page - 1) * pagination.perPage,
       first: pagination.perPage,

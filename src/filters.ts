@@ -49,6 +49,9 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     '!null': ['isNull', () => false],
     default: ['equalTo', Number],
   },
+  get BigInt() {
+    return this.Int
+  },
   IntArray: {
     '=': ['in', (value: string[]) => value.map(Number)],
     '!=': ['notIn', (value: string[]) => value.map(Number)],
@@ -97,6 +100,8 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     '<=': ['lessThanOrEqualTo', (value: Date) => value.toISOString()],
     '>': ['greaterThan', (value: Date) => value.toISOString()],
     '>=': ['greaterThanOrEqualTo', (value: Date) => value.toISOString()],
+    null: ['isNull', () => true],
+    '!null': ['isNull', () => false],
     default: ['equalTo', (value: Date) => value.toISOString()],
   },
   FullText: {

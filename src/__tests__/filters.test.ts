@@ -5,6 +5,10 @@ const IntType: GQLType = {
   name: 'Int',
 }
 
+const BigIntType: GQLType = {
+  name: 'BigInt',
+}
+
 const IntListType: GQLType = {
   name: 'IntList',
 }
@@ -179,6 +183,52 @@ describe('filters', () => {
       })
       it('!null', () => {
         expect(mapFilterType(IntType, true, ['!null'])).toStrictEqual({
+          isNull: false,
+        })
+      })
+    })
+
+    describe('type BigInt operation', () => {
+      it('default', () => {
+        expect(mapFilterType(BigIntType, '2', [])).toStrictEqual({ equalTo: 2 })
+      })
+      it('=', () => {
+        expect(mapFilterType(BigIntType, '2', ['='])).toStrictEqual({
+          equalTo: 2,
+        })
+      })
+      it('!=', () => {
+        expect(mapFilterType(BigIntType, '2', ['!='])).toStrictEqual({
+          notEqualTo: 2,
+        })
+      })
+      it('<', () => {
+        expect(mapFilterType(BigIntType, '2', ['<'])).toStrictEqual({
+          lessThan: 2,
+        })
+      })
+      it('<=', () => {
+        expect(mapFilterType(BigIntType, '2', ['<='])).toStrictEqual({
+          lessThanOrEqualTo: 2,
+        })
+      })
+      it('>', () => {
+        expect(mapFilterType(BigIntType, '2', ['>'])).toStrictEqual({
+          greaterThan: 2,
+        })
+      })
+      it('>=', () => {
+        expect(mapFilterType(BigIntType, '2', ['>='])).toStrictEqual({
+          greaterThanOrEqualTo: 2,
+        })
+      })
+      it('null', () => {
+        expect(mapFilterType(BigIntType, true, ['null'])).toStrictEqual({
+          isNull: true,
+        })
+      })
+      it('!null', () => {
+        expect(mapFilterType(BigIntType, true, ['!null'])).toStrictEqual({
           isNull: false,
         })
       })
@@ -462,6 +512,16 @@ describe('filters', () => {
             '>=',
           ]),
         ).toStrictEqual({ greaterThanOrEqualTo: '2020-10-05T14:48:00.000Z' })
+      })
+      it('null', () => {
+        expect(mapFilterType(DatetimeType, true, ['null'])).toStrictEqual({
+          isNull: true,
+        })
+      })
+      it('!null', () => {
+        expect(mapFilterType(DatetimeType, true, ['!null'])).toStrictEqual({
+          isNull: false,
+        })
       })
     })
 
