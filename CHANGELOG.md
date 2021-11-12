@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Feature
+
+- Add support for 8-byte integer (BigInt).
+- Add "null" and "!null" filters to DateTime types
+
 ### Breaking
 
 - Support react-admin 3.19.0
