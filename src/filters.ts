@@ -47,6 +47,8 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     '>=': ['greaterThanOrEqualTo', Number],
     null: ['isNull', () => true],
     '!null': ['isNull', () => false],
+    in: ['in', (value: number[]) => value.map(Number)],
+    '!in': ['notIn', (value: number[]) => value.map(Number)],
     default: ['equalTo', Number],
   },
   get BigInt() {
@@ -58,6 +60,9 @@ export const TYPE_TO_FILTER_MAPPINGS = {
     in: ['in', (value: string[]) => value.map(Number)],
     '!in': ['notIn', (value: string[]) => value.map(Number)],
     default: ['in', (value: string[]) => value.map(Number)],
+  },
+  get BigIntArray() {
+    return this.IntArray
   },
   IntList: {
     '=': ['anyEqualTo', Number],

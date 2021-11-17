@@ -4,6 +4,7 @@
 
 ### Feature
 
+- Add support for "in" and "!in" filters for 8-byt integer array (BigIntArray)
 - Refactored Base-Resource implementation in order to support polymorphism
   on some filter methods.
 - Add support for 8-byte integer (BigInt).
