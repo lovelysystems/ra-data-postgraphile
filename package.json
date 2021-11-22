@@ -77,7 +77,6 @@
     "jest": "^27.3.1",
     "lint-staged": "11.2.3",
     "prettier": "2.4.1",
-    "ra-core": "^3.19.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-final-form": "^6.5.7",

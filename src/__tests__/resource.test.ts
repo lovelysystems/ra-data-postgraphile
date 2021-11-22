@@ -10,7 +10,7 @@ import {
   GET_MANY_REFERENCE,
   DELETE,
   DELETE_MANY,
-} from 'ra-core'
+} from 'react-admin'
 
 import { TestTypes, TestQueries } from './helpers'
 

@@ -1,4 +1,4 @@
-import { GET_ONE, GET_LIST, CREATE, UPDATE, DELETE } from 'ra-core'
+import { GET_ONE, GET_LIST, CREATE, UPDATE, DELETE } from 'react-admin'
 import { TestTypes, TestQueries } from './helpers'
 import { RADataGraphqlFactory, ResourceOptions } from '../types'
 
