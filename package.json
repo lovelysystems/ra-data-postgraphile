@@ -46,8 +46,8 @@
     "lodash": "^4.17.21",
     "pg-tsquery": "^8.3.0",
     "pluralize": "~8.0.0",
-    "ra-data-graphql": "^3.19.0",
-    "react-admin": "^3.19.0"
+    "ra-data-graphql": "^3.19.1",
+    "react-admin": "^3.19.1"
   },
   "devDependencies": {
     "@types/jest": "27.0.2",
@@ -77,7 +77,7 @@
     "jest": "^27.3.1",
     "lint-staged": "11.2.3",
     "prettier": "2.4.1",
-    "ra-core": "^3.19.0",
+    "ra-core": "^3.19.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-final-form": "^6.5.7",
