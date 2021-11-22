@@ -109,8 +109,8 @@ export default async (options: Options): Promise<DataProvider> => {
   } = merge({}, defaultOptions, options)
 
   if (override && process.env.NODE_ENV === 'production') {
+    // eslint-disable-next-line no-console
     console.warn(
-      // eslint-disable-line
       'The override option is deprecated. You should instead wrap the buildQuery function provided by the dataProvider you use.',
     )
   }
@@ -192,6 +192,7 @@ export default async (options: Options): Promise<DataProvider> => {
 }
 
 const handleError = (error: ApolloError) => {
+  // eslint-disable-next-line no-console
   console.error({ error })
   if (error?.networkError as ServerError) {
     throw new HttpError(
